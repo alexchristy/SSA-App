@@ -12,6 +12,56 @@ void main() async {
   runApp(const MyApp());
 }
 
+class TerminalDetailPage extends StatelessWidget {
+  final Map<String, dynamic> terminalData;
+
+  const TerminalDetailPage({super.key, required this.terminalData});
+
+  @override
+  Widget build(BuildContext context) {
+    // Helper function to check if hash is not empty and return a widget for the timestamp
+    Widget buildTimestampInfo(
+        String hashKey, String timestampKey, String label) {
+      // Check if the PDF hash is not empty
+      if (terminalData[hashKey].toString().isNotEmpty) {
+        // If not empty, return the timestamp info widget
+        return Text(
+            '$label: ${terminalData[timestampKey].toDate().toString()}');
+      }
+      // If the hash is empty, return an empty Container (no widget)
+      return Container();
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(terminalData['name']),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Location: ${terminalData['location']}'),
+            Text('Group: ${terminalData['group']}'),
+            // Dynamically display timestamps based on hash presence
+            buildTimestampInfo('pdf30DayHash', 'last30DayUpdateTimestamp',
+                'Last 30 Day Update'),
+            buildTimestampInfo('pdf72HourHash', 'last72HourUpdateTimestamp',
+                'Last 72 Hour Update'),
+            buildTimestampInfo('pdfRollcallHash', 'lastRollcallUpdateTimestamp',
+                'Last Rollcall Update'),
+            // Continue with other fields...
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Go Back'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -42,19 +92,55 @@ class TerminalsList extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
           if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           }
-
           return ListView.builder(
             itemCount: snapshot.data?.length ?? 0,
             itemBuilder: (context, index) {
               var doc = snapshot.data![index];
-              return ListTile(
-                title: Text(
-                    doc['name']), // Assuming each document has a 'name' field
-                subtitle: Text(doc['location']),
+              return Card(
+                margin: const EdgeInsets.all(8.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                      4.0), // Match this with InkWell's borderRadius
+                ),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => TerminalDetailPage(
+                          terminalData: doc.data()
+                              as Map<String, dynamic>, // Pass the terminal data
+                        ),
+                      ),
+                    );
+                  },
+                  // Use ClipRRect to clip the ripple effect to the card's border radius
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                        4.0), // Ensure this matches the Card's borderRadius
+                    child: Material(
+                      type: MaterialType.transparency, // Use transparency
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              doc['name'], // Assuming each document has a 'name' field
+                              style: const TextStyle(
+                                  fontSize: 18.0, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8.0),
+                            Text(
+                                doc['location']), // Assuming a 'location' field
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               );
             },
           );
