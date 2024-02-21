@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure plugin services are initialized
-  await Firebase.initializeApp(); // Initialize Firebase
-  runApp(MyApp());
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,23 +22,25 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: TerminalsList(),
+      home: const TerminalsList(),
     );
   }
 }
 
 class TerminalsList extends StatelessWidget {
+  const TerminalsList({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Terminals"),
+        title: const Text("Terminals"),
       ),
       body: FutureBuilder<List<QueryDocumentSnapshot>>(
         future: getTerminals(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -47,8 +54,7 @@ class TerminalsList extends StatelessWidget {
               return ListTile(
                 title: Text(
                     doc['name']), // Assuming each document has a 'name' field
-                subtitle:
-                    Text(doc['description']), // Assuming a 'description' field
+                subtitle: Text(doc['location']),
               );
             },
           );
