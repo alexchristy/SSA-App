@@ -185,8 +185,8 @@ class TerminalsList extends StatelessWidget {
                 var doc = snapshot.data![index].data() as Map<String, dynamic>;
                 String? terminalImageUrl = doc['terminalImageUrl'];
                 if (terminalImageUrl != null && terminalImageUrl.isNotEmpty) {
-                  terminalImageUrl =
-                      getImageVariant(terminalImageUrl, imageWidth, tileHeight);
+                  terminalImageUrl = getTerminalImageVariant(
+                      terminalImageUrl, imageWidth, tileHeight);
                   // Preload images for the next 5 terminals
                   for (int i = 1; i <= 5; i++) {
                     if (index + i < snapshot.data!.length) {
@@ -194,7 +194,7 @@ class TerminalsList extends StatelessWidget {
                           as Map<String, dynamic>;
                       String? nextImageUrl = nextDoc['terminalImageUrl'];
                       if (nextImageUrl != null && nextImageUrl.isNotEmpty) {
-                        nextImageUrl = getImageVariant(
+                        nextImageUrl = getTerminalImageVariant(
                             nextImageUrl, imageWidth, tileHeight);
                         final imageProvider =
                             CachedNetworkImageProvider(nextImageUrl);
@@ -290,7 +290,7 @@ class TerminalsList extends StatelessWidget {
   }
 
   // Function to select the appropriate image variant
-  String getImageVariant(
+  String getTerminalImageVariant(
       String baseUrl, double requiredWidth, double requiredHeight) {
     const variants = [200, 300, 400, 500, 600]; // Image size variants
 
