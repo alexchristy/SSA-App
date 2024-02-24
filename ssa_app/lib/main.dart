@@ -161,6 +161,12 @@ class TerminalsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final tileWidth =
+        ((screenWidth * 0.9) / 2).ceil() * 2; // Ensure it's an even number
+    final imageWidth =
+        (tileWidth * 0.35).ceil().toDouble(); // 35% of tile width for the image
+
     return Scaffold(
       appBar: AppBar(title: const Text("Terminals")),
       body: FutureBuilder<List<QueryDocumentSnapshot>>(
@@ -174,47 +180,71 @@ class TerminalsList extends StatelessWidget {
             return ListView.builder(
               itemCount: snapshot.data?.length ?? 0,
               itemBuilder: (context, index) {
-                var doc = snapshot.data![index];
-                return RepaintBoundary(
-                  child: Card(
-                    margin: const EdgeInsets.all(8.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          4.0), // Match this with InkWell's borderRadius
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => TerminalDetailPage(
-                              terminalData: doc.data() as Map<String,
-                                  dynamic>, // Pass the terminal data
+                var doc = snapshot.data![index].data() as Map<String, dynamic>;
+                String? terminalImageUrl = doc['terminalImageUrl'];
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: 16.0, // Adjusted for demonstration
+                    left: (screenWidth - tileWidth) / 2, // Center the tile
+                    right: (screenWidth - tileWidth) / 2,
+                  ),
+                  child: RepaintBoundary(
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => TerminalDetailPage(
+                                terminalData: doc,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      // Use ClipRRect to clip the ripple effect to the card's border radius
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            4.0), // Ensure this matches the Card's borderRadius
-                        child: Material(
-                          type: MaterialType.transparency, // Use transparency
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  doc['name'], // Assuming each document has a 'name' field
-                                  style: const TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold),
+                          );
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 35, // Takes up 35% of the row's space
+                                child: terminalImageUrl != null &&
+                                        terminalImageUrl.isNotEmpty
+                                    ? Image.network(
+                                        terminalImageUrl,
+                                        width: imageWidth,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Container(
+                                        color: Colors.white,
+                                      ),
+                              ),
+                              Expanded(
+                                flex:
+                                    65, // Takes up the remaining 65% of the row's space
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize:
+                                        MainAxisSize.min, // Use minimum space
+                                    children: [
+                                      Text(
+                                        doc['name'] ?? 'Unknown',
+                                        style: const TextStyle(
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 8.0),
+                                      Text(doc['location'] ??
+                                          'No location provided'),
+                                    ],
+                                  ),
                                 ),
-                                const SizedBox(height: 8.0),
-                                Text(doc[
-                                    'location']), // Assuming a 'location' field
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
