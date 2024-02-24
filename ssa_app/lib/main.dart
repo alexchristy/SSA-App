@@ -292,9 +292,19 @@ class TerminalsList extends StatelessWidget {
   // Function to select the appropriate image variant
   String getTerminalImageVariant(
       String baseUrl, double requiredWidth, double requiredHeight) {
-    const variants = [200, 300, 400, 500, 600]; // Image size variants
+    const variants = [
+      150,
+      200,
+      300,
+      350,
+      400,
+      500,
+      600,
+      700,
+      750
+    ]; // Image size variants
 
-    int requiredSize = 600;
+    int requiredSize = 400;
 
     if (requiredWidth >= requiredHeight) {
       requiredSize = requiredWidth.ceil(); // Use the larger dimension
@@ -307,8 +317,9 @@ class TerminalsList extends StatelessWidget {
         return "${baseUrl}terminal$variant"; // Use the first variant that's larger than or equal to the required width
       }
     }
-    return baseUrl.replaceAll(
-        'terminal', 'terminal600'); // Use the largest if none match
+
+    // Default to 400
+    return "${baseUrl}terminal400";
   }
 
   Future<List<QueryDocumentSnapshot>> getTerminals() async {
