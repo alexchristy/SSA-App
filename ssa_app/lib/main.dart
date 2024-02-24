@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 void main() async {
   WidgetsFlutterBinding
@@ -166,6 +167,7 @@ class TerminalsList extends StatelessWidget {
         ((screenWidth * 0.9) / 2).ceil() * 2; // Ensure it's an even number
     final imageWidth =
         (tileWidth * 0.35).ceil().toDouble(); // 35% of tile width for the image
+    final tileHeight = imageWidth; // Square image
 
     return Scaffold(
       appBar: AppBar(title: const Text("Terminals")),
@@ -182,6 +184,25 @@ class TerminalsList extends StatelessWidget {
               itemBuilder: (context, index) {
                 var doc = snapshot.data![index].data() as Map<String, dynamic>;
                 String? terminalImageUrl = doc['terminalImageUrl'];
+                if (terminalImageUrl != null && terminalImageUrl.isNotEmpty) {
+                  terminalImageUrl =
+                      getImageVariant(terminalImageUrl, imageWidth, tileHeight);
+                  // Preload images for the next 5 terminals
+                  for (int i = 1; i <= 5; i++) {
+                    if (index + i < snapshot.data!.length) {
+                      var nextDoc = snapshot.data![index + i].data()
+                          as Map<String, dynamic>;
+                      String? nextImageUrl = nextDoc['terminalImageUrl'];
+                      if (nextImageUrl != null && nextImageUrl.isNotEmpty) {
+                        nextImageUrl = getImageVariant(
+                            nextImageUrl, imageWidth, tileHeight);
+                        final imageProvider =
+                            CachedNetworkImageProvider(nextImageUrl);
+                        precacheImage(imageProvider, context);
+                      }
+                    }
+                  }
+                }
                 return Padding(
                   padding: EdgeInsets.only(
                     bottom: 16.0, // Adjusted for demonstration
@@ -211,13 +232,25 @@ class TerminalsList extends StatelessWidget {
                                 flex: 35, // Takes up 35% of the row's space
                                 child: terminalImageUrl != null &&
                                         terminalImageUrl.isNotEmpty
-                                    ? Image.network(
-                                        terminalImageUrl,
+                                    ? CachedNetworkImage(
+                                        imageUrl: terminalImageUrl,
                                         width: imageWidth,
+                                        height: tileHeight.toDouble(),
                                         fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            Container(
+                                                color: Colors.grey[
+                                                    200]), // Custom placeholder
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.error),
+                                        fadeInDuration: const Duration(
+                                            milliseconds:
+                                                300), // Customize fade-in duration
                                       )
                                     : Container(
                                         color: Colors.white,
+                                        height: tileHeight
+                                            .toDouble(), // Set the container height to match the new tile height
                                       ),
                               ),
                               Expanded(
@@ -236,10 +269,7 @@ class TerminalsList extends StatelessWidget {
                                         style: const TextStyle(
                                             fontSize: 18.0,
                                             fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(height: 8.0),
-                                      Text(doc['location'] ??
-                                          'No location provided'),
+                                      )
                                     ],
                                   ),
                                 ),
@@ -257,6 +287,28 @@ class TerminalsList extends StatelessWidget {
         },
       ),
     );
+  }
+
+  // Function to select the appropriate image variant
+  String getImageVariant(
+      String baseUrl, double requiredWidth, double requiredHeight) {
+    const variants = [200, 300, 400, 500, 600]; // Image size variants
+
+    int requiredSize = 600;
+
+    if (requiredWidth >= requiredHeight) {
+      requiredSize = requiredWidth.ceil(); // Use the larger dimension
+    } else {
+      requiredSize = requiredHeight.ceil(); // Use the larger dimension
+    }
+
+    for (final variant in variants) {
+      if (requiredSize <= variant) {
+        return "${baseUrl}terminal$variant"; // Use the first variant that's larger than or equal to the required width
+      }
+    }
+    return baseUrl.replaceAll(
+        'terminal', 'terminal600'); // Use the largest if none match
   }
 
   Future<List<QueryDocumentSnapshot>> getTerminals() async {
