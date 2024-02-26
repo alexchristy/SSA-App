@@ -221,7 +221,7 @@ class TerminalsList extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                       elevation: 0.0,
-                      child: InkWell(
+                      child: GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
