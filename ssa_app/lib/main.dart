@@ -9,6 +9,8 @@ import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'logger.dart'; // Import the logger setup
 
 void main() async {
   WidgetsFlutterBinding
@@ -16,6 +18,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  setupLogging();
   runApp(const MyApp());
 }
 
@@ -163,11 +166,10 @@ class TerminalsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final tileWidth =
-        ((screenWidth * 0.9) / 2).ceil() * 2; // Ensure it's an even number
-    final imageWidth =
-        (tileWidth * 0.35).ceil().toDouble(); // 35% of tile width for the image
-    final tileHeight = imageWidth; // Square image
+    final tileWidth = getTileWidth(screenWidth);
+    final tileHeight = getTileHeight(tileWidth);
+    final imageWidth = tileHeight
+        .toDouble(); // Use the tile height as the image width for a square image
 
     return Scaffold(
       appBar: AppBar(title: const Text("Terminals")),
@@ -185,8 +187,8 @@ class TerminalsList extends StatelessWidget {
                 var doc = snapshot.data![index].data() as Map<String, dynamic>;
                 String? terminalImageUrl = doc['terminalImageUrl'];
                 if (terminalImageUrl != null && terminalImageUrl.isNotEmpty) {
-                  terminalImageUrl = getTerminalImageVariant(
-                      terminalImageUrl, imageWidth, tileHeight);
+                  terminalImageUrl = getTerminalImageVariant(terminalImageUrl,
+                      imageWidth, tileHeight.toDouble(), context);
                   // Preload images for the next 5 terminals
                   for (int i = 1; i <= 5; i++) {
                     if (index + i < snapshot.data!.length) {
@@ -194,8 +196,8 @@ class TerminalsList extends StatelessWidget {
                           as Map<String, dynamic>;
                       String? nextImageUrl = nextDoc['terminalImageUrl'];
                       if (nextImageUrl != null && nextImageUrl.isNotEmpty) {
-                        nextImageUrl = getTerminalImageVariant(
-                            nextImageUrl, imageWidth, tileHeight);
+                        nextImageUrl = getTerminalImageVariant(nextImageUrl,
+                            imageWidth, tileHeight.toDouble(), context);
                         final imageProvider =
                             CachedNetworkImageProvider(nextImageUrl);
                         precacheImage(imageProvider, context);
@@ -289,27 +291,50 @@ class TerminalsList extends StatelessWidget {
     );
   }
 
+  void clearImageCache() {
+    DefaultCacheManager().emptyCache();
+  }
+
+  int getTileWidth(double screenWidth) {
+    return ((screenWidth * 0.9) / 2).ceil() * 2; // Ensure it's an even number
+  }
+
+  int getTileHeight(int tileWidth) {
+    return (tileWidth * 0.35).ceil(); // 35% tall of the tile width
+  }
+
   // Function to select the appropriate image variant
-  String getTerminalImageVariant(
-      String baseUrl, double requiredWidth, double requiredHeight) {
+  String getTerminalImageVariant(String baseUrl, double requiredWidth,
+      double requiredHeight, BuildContext context) {
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+
+    // Adjust required dimensions according to the pixel ratio
+    final adjustedWidth = requiredWidth * pixelRatio;
+    final adjustedHeight = requiredHeight * pixelRatio;
+
+    appWideLogger.finest(
+        "Adjusted width: $adjustedWidth, adjusted height: $adjustedHeight");
+
     const variants = [
       150,
       200,
+      250,
       300,
       350,
       400,
+      450,
       500,
       600,
       700,
-      750
+      750,
     ]; // Image size variants
 
     int requiredSize = 400;
 
-    if (requiredWidth >= requiredHeight) {
-      requiredSize = requiredWidth.ceil(); // Use the larger dimension
+    if (adjustedWidth >= adjustedHeight) {
+      requiredSize = adjustedWidth.ceil(); // Use the larger dimension
     } else {
-      requiredSize = requiredHeight.ceil(); // Use the larger dimension
+      requiredSize = adjustedHeight.ceil(); // Use the larger dimension
     }
 
     for (final variant in variants) {
