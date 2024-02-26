@@ -1,0 +1,25 @@
+First color pallete: https://coolors.co/0069b5-f2f2f7-ffffff-556d85-113354
+
+
+Tiles: Green Blue 0069B5
+Background: Ghost White F2F2F7
+Title/Main Text against White: Pruissian Blue 113354
+Text against Blue: White FFFFFF
+
+
+
+Blue Tiles Screen:
+-----------------
+
+Screen Title Text: Jet 323233
+
+(Gradient from top left to bottom right)
+(99,41,0,21) --> (99,41,0,25) --> (100,42,0,29)
+(Top left Corner) --> (Center) --> (Bottom Right Corner)
+
+Base Tile Color: Green Blue 0069B5
+Main Tile Text: White FFFFFF
+Supporting Tile Text: 50% opacity White FFFFFF?
+Lighter Color Blue Button (...): Tufts Blue 278ACF
+White Buttons and Tiles: White FFFFFF
+

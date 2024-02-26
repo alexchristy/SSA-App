@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
       title: 'Firestore Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        cardColor: Colors.white,
       ),
       home: const TerminalsList(),
     );
@@ -104,8 +105,8 @@ class TerminalDetailPage extends StatelessWidget {
   List<Widget> buildPdfButtons(BuildContext context) {
     List<Widget> buttons = [];
     Map<String, String> pdfLabels = {
-      'pdf30DayHash': '30 Day Schedule',
       'pdf72HourHash': '72 Hour Schedule',
+      'pdf30DayHash': '30 Day Schedule',
       'pdfRollcallHash': 'Rollcall Schedule',
     };
 
@@ -173,6 +174,8 @@ class TerminalsList extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Terminals")),
+      backgroundColor: const Color.fromRGBO(
+          242, 242, 247, 1.0), // Use a light gray background
       body: FutureBuilder<List<QueryDocumentSnapshot>>(
         future: getTerminals(),
         builder: (context, snapshot) {
@@ -213,9 +216,11 @@ class TerminalsList extends StatelessWidget {
                   ),
                   child: RepaintBoundary(
                     child: Card(
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16.0),
                       ),
+                      elevation: 0.0,
                       child: InkWell(
                         onTap: () {
                           Navigator.of(context).push(
@@ -240,19 +245,15 @@ class TerminalsList extends StatelessWidget {
                                         height: tileHeight.toDouble(),
                                         fit: BoxFit.cover,
                                         placeholder: (context, url) =>
-                                            Container(
-                                                color: Colors.grey[
-                                                    200]), // Custom placeholder
+                                            Container(color: Colors.white),
                                         errorWidget: (context, url, error) =>
                                             const Icon(Icons.error),
-                                        fadeInDuration: const Duration(
-                                            milliseconds:
-                                                300), // Customize fade-in duration
+                                        fadeInDuration:
+                                            const Duration(milliseconds: 300),
                                       )
                                     : Container(
                                         color: Colors.white,
-                                        height: tileHeight
-                                            .toDouble(), // Set the container height to match the new tile height
+                                        height: tileHeight.toDouble(),
                                       ),
                               ),
                               Expanded(
@@ -263,8 +264,7 @@ class TerminalsList extends StatelessWidget {
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    mainAxisSize:
-                                        MainAxisSize.min, // Use minimum space
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
                                         doc['name'] ?? 'Unknown',
