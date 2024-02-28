@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssa_app/theme/app_theme.dart'; // Import your theme
 import 'package:ssa_app/screens/terminal-list/terminal_list_screen.dart';
 import 'services/firebase/firebase_init.dart'; // Import the Firebase initializer
 
@@ -14,10 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Firestore Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        cardColor: Colors.white,
-      ),
+      theme: AppTheme.lightTheme, // Apply the theme here
       home: TerminalsList(),
     );
   }
