@@ -17,6 +17,6 @@ class ImageUtil {
         return "${baseUrl}terminal$variant";
       }
     }
-    return "${baseUrl}terminal400"; // Default variant
+    return "${baseUrl}terminal750"; // Default variant
   }
 }

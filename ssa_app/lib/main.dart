@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Firestore Demo',
+      title: 'SmartSpaceA',
       theme: AppTheme.lightTheme, // Apply the theme here
       home: TerminalsList(),
     );
