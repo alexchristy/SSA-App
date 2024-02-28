@@ -1,24 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:ssa_app/utils/image_utils.dart';
+import 'package:ssa_app/utils/pdf_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// Import packages for downloading and viewing PDFs
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'logger.dart'; // Import the logger setup
+import 'package:ssa_app/utils/terminal_utils.dart';
+import 'services/firebase/firebase_init.dart'; // Import the Firebase initializer
 
 void main() async {
-  WidgetsFlutterBinding
-      .ensureInitialized(); // Ensure plugin services are initialized
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  setupLogging();
+  await FirebaseInitializer.initializeFirebase();
   runApp(const MyApp());
 }
 
@@ -33,15 +24,16 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         cardColor: Colors.white,
       ),
-      home: const TerminalsList(),
+      home: TerminalsList(),
     );
   }
 }
 
 class TerminalDetailPage extends StatelessWidget {
   final Map<String, dynamic> terminalData;
+  final PDFService _pdfService = PDFService();
 
-  const TerminalDetailPage({super.key, required this.terminalData});
+  TerminalDetailPage({super.key, required this.terminalData});
 
   @override
   Widget build(BuildContext context) {
@@ -68,40 +60,6 @@ class TerminalDetailPage extends StatelessWidget {
     );
   }
 
-  Future<void> requestStoragePermission() async {
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      await Permission.storage.request();
-    }
-  }
-
-  Future<String?> downloadPdf(String url, String fileName) async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final filePath = path.join(dir.path, fileName);
-      await Dio().download(url, filePath);
-      return filePath;
-    } catch (e) {
-      print("Error downloading file: $e");
-      return null;
-    }
-  }
-
-  Future<Map<String, dynamic>?> fetchPdfDetails(String hash) async {
-    var doc = await FirebaseFirestore.instance
-        .collection('PDF_Archive')
-        .doc(hash)
-        .get();
-    return doc.exists ? doc.data() : null;
-  }
-
-  void openPdf(BuildContext context, String filePath) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => PDFViewPage(filePath: filePath)),
-    );
-  }
-
   List<Widget> buildPdfButtons(BuildContext context) {
     List<Widget> buttons = [];
     Map<String, String> pdfLabels = {
@@ -116,13 +74,14 @@ class TerminalDetailPage extends StatelessWidget {
         buttons.add(ElevatedButton(
           child: Text(label),
           onPressed: () async {
-            await requestStoragePermission();
-            var pdfDetails = await fetchPdfDetails(hash);
+            await _pdfService.requestStoragePermission();
+            var pdfDetails = await _pdfService.fetchPdfDetails(hash);
             if (pdfDetails != null) {
               final fileName = path.basename(pdfDetails['cloud_path']);
-              final filePath = await downloadPdf(pdfDetails['link'], fileName);
+              final filePath =
+                  await _pdfService.downloadPdf(pdfDetails['link'], fileName);
               if (filePath != null) {
-                openPdf(context, filePath);
+                _pdfService.openPdf(context, filePath);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Could not download PDF.')),
@@ -142,27 +101,9 @@ class TerminalDetailPage extends StatelessWidget {
   }
 }
 
-// A new widget to display the PDF
-class PDFViewPage extends StatelessWidget {
-  final String filePath;
-
-  const PDFViewPage({super.key, required this.filePath});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("PDF Document"),
-      ),
-      body: PDFView(
-        filePath: filePath,
-      ),
-    );
-  }
-}
-
 class TerminalsList extends StatelessWidget {
-  const TerminalsList({super.key});
+  TerminalsList({super.key});
+  final TerminalService _terminalService = TerminalService();
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +118,7 @@ class TerminalsList extends StatelessWidget {
       backgroundColor: const Color.fromRGBO(
           242, 242, 247, 1.0), // Use a light gray background
       body: FutureBuilder<List<QueryDocumentSnapshot>>(
-        future: getTerminals(),
+        future: _terminalService.getTerminals(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -190,8 +131,11 @@ class TerminalsList extends StatelessWidget {
                 var doc = snapshot.data![index].data() as Map<String, dynamic>;
                 String? terminalImageUrl = doc['terminalImageUrl'];
                 if (terminalImageUrl != null && terminalImageUrl.isNotEmpty) {
-                  terminalImageUrl = getTerminalImageVariant(terminalImageUrl,
-                      imageWidth, tileHeight.toDouble(), context);
+                  terminalImageUrl = ImageUtil.getTerminalImageVariant(
+                      terminalImageUrl,
+                      imageWidth,
+                      tileHeight.toDouble(),
+                      context);
                   // Preload images for the next 5 terminals
                   for (int i = 1; i <= 5; i++) {
                     if (index + i < snapshot.data!.length) {
@@ -199,8 +143,11 @@ class TerminalsList extends StatelessWidget {
                           as Map<String, dynamic>;
                       String? nextImageUrl = nextDoc['terminalImageUrl'];
                       if (nextImageUrl != null && nextImageUrl.isNotEmpty) {
-                        nextImageUrl = getTerminalImageVariant(nextImageUrl,
-                            imageWidth, tileHeight.toDouble(), context);
+                        nextImageUrl = ImageUtil.getTerminalImageVariant(
+                            nextImageUrl,
+                            imageWidth,
+                            tileHeight.toDouble(),
+                            context);
                         final imageProvider =
                             CachedNetworkImageProvider(nextImageUrl);
                         precacheImage(imageProvider, context);
@@ -301,55 +248,5 @@ class TerminalsList extends StatelessWidget {
 
   int getTileHeight(int tileWidth) {
     return (tileWidth * 0.35).ceil(); // 35% tall of the tile width
-  }
-
-  // Function to select the appropriate image variant
-  String getTerminalImageVariant(String baseUrl, double requiredWidth,
-      double requiredHeight, BuildContext context) {
-    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-
-    // Adjust required dimensions according to the pixel ratio
-    final adjustedWidth = requiredWidth * pixelRatio;
-    final adjustedHeight = requiredHeight * pixelRatio;
-
-    appWideLogger.finest(
-        "Adjusted width: $adjustedWidth, adjusted height: $adjustedHeight");
-
-    const variants = [
-      150,
-      200,
-      250,
-      300,
-      350,
-      400,
-      450,
-      500,
-      600,
-      700,
-      750,
-    ]; // Image size variants
-
-    int requiredSize = 400;
-
-    if (adjustedWidth >= adjustedHeight) {
-      requiredSize = adjustedWidth.ceil(); // Use the larger dimension
-    } else {
-      requiredSize = adjustedHeight.ceil(); // Use the larger dimension
-    }
-
-    for (final variant in variants) {
-      if (requiredSize <= variant) {
-        return "${baseUrl}terminal$variant"; // Use the first variant that's larger than or equal to the required width
-      }
-    }
-
-    // Default to 400
-    return "${baseUrl}terminal400";
-  }
-
-  Future<List<QueryDocumentSnapshot>> getTerminals() async {
-    var collection = FirebaseFirestore.instance.collection('Terminals');
-    var querySnapshot = await collection.get();
-    return querySnapshot.docs;
   }
 }
