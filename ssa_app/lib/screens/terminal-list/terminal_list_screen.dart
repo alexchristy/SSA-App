@@ -5,6 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart';
 import 'package:ssa_app/utils/image_utils.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
+import '../../constants/app_colors.dart';
 
 class TerminalsList extends StatelessWidget {
   TerminalsList({super.key});
@@ -102,7 +103,6 @@ class TerminalListItem extends StatelessWidget {
 
   Widget buildTerminalCard(BuildContext context, String? terminalImageUrl) {
     return Card(
-      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
       ),
@@ -139,11 +139,11 @@ class TerminalListItem extends StatelessWidget {
           ? CachedNetworkImage(
               imageUrl: imageUrl,
               fit: BoxFit.cover,
-              placeholder: (context, url) => Container(color: Colors.white),
+              placeholder: (context, url) => Container(color: AppColors.white),
               errorWidget: (context, url, error) => const Icon(Icons.error),
               fadeInDuration: const Duration(milliseconds: 300),
             )
-          : Container(color: Colors.white, height: tileHeight),
+          : Container(color: AppColors.white, height: tileHeight),
     );
   }
 
