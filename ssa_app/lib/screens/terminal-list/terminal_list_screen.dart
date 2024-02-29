@@ -14,7 +14,6 @@ class TerminalsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Terminals")),
-      backgroundColor: const Color.fromRGBO(242, 242, 247, 1.0),
       body: FutureBuilder<List<QueryDocumentSnapshot>>(
         future: _terminalService.getTerminals(),
         builder: (context, snapshot) {
@@ -66,12 +65,12 @@ class TerminalListItem extends StatelessWidget {
   final double screenWidth, tileWidth, tileHeight;
 
   const TerminalListItem({
-    Key? key,
+    super.key,
     required this.doc,
     required this.screenWidth,
     required this.tileWidth,
     required this.tileHeight,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
