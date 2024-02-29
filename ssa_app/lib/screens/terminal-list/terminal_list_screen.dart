@@ -8,15 +8,18 @@ import 'package:ssa_app/utils/terminal_utils.dart';
 import '../../constants/app_colors.dart';
 
 class TerminalsList extends StatelessWidget {
-  TerminalsList({super.key});
-  final TerminalService _terminalService = TerminalService();
+  final TerminalService terminalService;
+
+  // If TerminalService is passed, use it; otherwise, create a new instance
+  TerminalsList({super.key, TerminalService? terminalService})
+      : terminalService = terminalService ?? TerminalService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Terminals")),
       body: FutureBuilder<List<QueryDocumentSnapshot>>(
-        future: _terminalService.getTerminals(),
+        future: terminalService.getTerminals(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
