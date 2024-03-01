@@ -25,8 +25,13 @@ class TerminalsList extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             // Better error handling
-            debugPrint('Error loading terminals: ${snapshot.error}');
-            return Center(child: Text("Error: ${snapshot.error}"));
+            debugPrint('Error: ${snapshot.error}');
+            return const Center(
+              child: Text(
+                "Error: Failed to load terminal data. Ensure you are connected to the internet.",
+                key: Key("terminalLoadingError"),
+              ),
+            );
           } else {
             return buildTerminalList(context, snapshot);
           }
