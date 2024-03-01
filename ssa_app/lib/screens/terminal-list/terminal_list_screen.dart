@@ -95,16 +95,23 @@ class TerminalListItem extends StatelessWidget {
       context,
     );
 
-    // Preload images logic can be encapsulated in a separate method if needed
-
     return Padding(
       padding: EdgeInsets.only(
         bottom: 16.0,
         left: (screenWidth - tileWidth) / 2,
         right: (screenWidth - tileWidth) / 2,
       ),
-      child: RepaintBoundary(
-        child: buildTerminalCard(context, terminalImageUrl),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => TerminalDetailPage(terminalData: doc),
+            ),
+          );
+        },
+        child: RepaintBoundary(
+          child: buildTerminalCard(context, terminalImageUrl),
+        ),
       ),
     );
   }
@@ -115,18 +122,9 @@ class TerminalListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.0),
       ),
       elevation: 0.0,
-      child: GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => TerminalDetailPage(terminalData: doc),
-            ),
-          );
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16.0),
-          child: buildCardContent(context, terminalImageUrl),
-        ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.0),
+        child: buildCardContent(context, terminalImageUrl),
       ),
     );
   }

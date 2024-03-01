@@ -40,8 +40,6 @@ void main() {
       // Pump to complete the Future
       await tester.pumpAndSettle();
 
-      debugDumpApp();
-
       // Check for the error message by finding a Text Widget with the specific Key
       expect(find.byKey(const Key("terminalLoadingError")), findsOneWidget);
     });
