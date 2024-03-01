@@ -91,5 +91,62 @@ void main() {
           reason:
               'Since there is no variant for 800px wide, it should return 750px wide variant should be used by default.');
     });
+
+    testWidgets('throws ArgumentError if requiredWidth or requiredHeight is 0',
+        (WidgetTester tester) async {
+      // Define a test widget that uses MediaQuery
+      Widget testWidget(
+          {required double requiredWidth, required double requiredHeight}) {
+        return MaterialApp(
+          home: Builder(
+            builder: (BuildContext context) {
+              const baseUrl = 'https://example.com/';
+              return Text(() {
+                try {
+                  ImageUtil.getTerminalImageVariant(
+                      baseUrl, requiredWidth, requiredHeight, context);
+                } on ArgumentError catch (e) {
+                  return e.message;
+                }
+              }());
+            },
+          ),
+        );
+      }
+
+      // Simulate different device pixel ratios
+      await tester
+          .pumpWidget(testWidget(requiredWidth: 0, requiredHeight: 200));
+      expect(find.text('requiredWidth and requiredHeight must be positive'),
+          findsOneWidget);
+
+      await tester
+          .pumpWidget(testWidget(requiredWidth: 200, requiredHeight: 0));
+      expect(find.text('requiredWidth and requiredHeight must be positive'),
+          findsOneWidget);
+    });
+
+    testWidgets('throws ArgumentError if baseUrl is empty',
+        (WidgetTester tester) async {
+      // Define a test widget that uses MediaQuery
+      Widget testWidget() {
+        return MaterialApp(
+          home: Builder(
+            builder: (BuildContext context) {
+              return Text(() {
+                try {
+                  ImageUtil.getTerminalImageVariant('', 200, 200, context);
+                } on ArgumentError catch (e) {
+                  return e.message;
+                }
+              }());
+            },
+          ),
+        );
+      }
+
+      await tester.pumpWidget(testWidget());
+      expect(find.text('baseUrl cannot be empty'), findsOneWidget);
+    });
   });
 }

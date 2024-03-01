@@ -4,6 +4,14 @@ import 'package:flutter/material.dart';
 class ImageUtil {
   static String getTerminalImageVariant(String baseUrl, double requiredWidth,
       double requiredHeight, BuildContext context) {
+    if (baseUrl.isEmpty) {
+      throw ArgumentError('baseUrl cannot be empty');
+    }
+
+    if (requiredWidth <= 0 || requiredHeight <= 0) {
+      throw ArgumentError('requiredWidth and requiredHeight must be positive');
+    }
+
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final adjustedWidth = requiredWidth * pixelRatio;
     final adjustedHeight = requiredHeight * pixelRatio;
