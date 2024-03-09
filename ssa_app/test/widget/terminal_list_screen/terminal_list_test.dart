@@ -102,5 +102,22 @@ void main() {
       // Check for the error message by finding a Text Widget with the specific Key
       expect(find.byKey(const Key("terminalLoadingError")), findsOneWidget);
     });
+
+    testWidgets(
+        'Should display "No terminals found." if getTerminals() returns an empty list.',
+        (WidgetTester tester) async {
+      final terminalService = MockTerminalService();
+      when(terminalService.getTerminals()).thenAnswer((_) async => []);
+
+      await tester.pumpWidget(MaterialApp(
+        home: TerminalsList(terminalService: terminalService),
+      ));
+
+      // Pump to complete the Future
+      await tester.pumpAndSettle();
+
+      // Check for the error message by finding a Text Widget with the specific Key
+      expect(find.text("No terminals found."), findsOneWidget);
+    });
   });
 }
