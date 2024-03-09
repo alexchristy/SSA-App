@@ -41,28 +41,27 @@ class Terminal {
     if (data == null) {
       throw Exception("Document data is null");
     }
+    // We do not use default values for non-nullable fields because we want to
+    // throw an exception if the field is missing. This will prevent displaying
+    // terminals with incomplete data.
     return Terminal(
-      archiveDir:
-          data['archiveDir'] ?? '', // Assuming default value for non-nullable
-      group: data['group'] ?? '', // Assuming default value for non-nullable
+      archiveDir: data['archiveDir'],
+      group: data['group'],
       last30DayUpdateTimestamp: data['last30DayUpdateTimestamp'] as Timestamp?,
       last72HourUpdateTimestamp:
           data['last72HourUpdateTimestamp'] as Timestamp?,
       lastCheckTimestamp: data['lastCheckTimestamp'] as Timestamp?,
       lastRollcallUpdateTimestamp:
           data['lastRollcallUpdateTimestamp'] as Timestamp?,
-      link: data['link'] ?? '', // Assuming default value for non-nullable
-      location:
-          data['location'] ?? '', // Assuming default value for non-nullable
-      name: data['name'] ?? '', // Assuming non-nullable with default value
-      pagePosition:
-          data['pagePosition'] ?? 0, // Assuming default value for non-nullable
+      link: data['link'],
+      location: data['location'],
+      name: data['name'],
+      pagePosition: data['pagePosition'],
       pdf30DayHash: data['pdf30DayHash'],
       pdf72HourHash: data['pdf72HourHash'],
       pdfRollcallHash: data['pdfRollcallHash'],
       terminalImageUrl: data['terminalImageUrl'],
-      timezone:
-          data['timezone'] ?? '', // Assuming default value for non-nullable
+      timezone: data['timezone'],
     );
   }
 

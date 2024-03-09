@@ -8,20 +8,30 @@ class TerminalService {
   TerminalService({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  // This method correctly assumes the Terminal class has a fromDocumentSnapshot method
-  Terminal getTerminalFromDoc(QueryDocumentSnapshot doc) {
-    return Terminal.fromDocumentSnapshot(doc);
-  }
-
   Future<List<Terminal>> getTerminals() async {
+    List<Terminal> terminals = [];
     try {
       var docs = await getTerminalDocs();
-      return docs.map((doc) => getTerminalFromDoc(doc)).toList();
+      for (var doc in docs) {
+        try {
+          // Attempt to parse the document into a Terminal object
+          var terminal = getTerminalFromDoc(doc);
+          terminals.add(terminal);
+        } catch (e) {
+          // If an error occurs, skip this document and continue with the next
+          debugPrint("Error converting document to Terminal: $e");
+        }
+      }
+      return terminals;
     } catch (e) {
-      // Handle errors or exceptions that may occur during the fetch
+      // Handle errors or exceptions that may occur during the fetch of documents
       debugPrint("Error loading terminals from Firestore: $e");
       return [];
     }
+  }
+
+  Terminal getTerminalFromDoc(QueryDocumentSnapshot doc) {
+    return Terminal.fromDocumentSnapshot(doc);
   }
 
   Future<List<QueryDocumentSnapshot>> getTerminalDocs() async {
