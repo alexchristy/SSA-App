@@ -100,7 +100,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check for the error message by finding a Text Widget with the specific Key
-      expect(find.byKey(const Key("terminalLoadingError")), findsOneWidget);
+      expect(
+          find.text(
+              "Failed to load terminals. Check your connection and try again."),
+          findsOneWidget);
     });
 
     testWidgets(

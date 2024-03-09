@@ -30,7 +30,6 @@ class TerminalsList extends StatelessWidget {
             return const Center(
               child: Text(
                 "Failed to load terminals. Check your connection and try again.",
-                key: Key("terminalLoadingError"),
                 textAlign: TextAlign.center,
               ),
             );
@@ -104,8 +103,6 @@ class TerminalListItem extends StatefulWidget {
 }
 
 class TerminalListItemState extends State<TerminalListItem> {
-  bool _hasImageError = false;
-
   @override
   Widget build(BuildContext context) {
     final imageWidth = widget.tileHeight;
@@ -114,7 +111,7 @@ class TerminalListItemState extends State<TerminalListItem> {
 
     // Check if the image URL is valid  and process it
     if (baseUrl == null || baseUrl.isEmpty) {
-      _hasImageError = true;
+      terminalImageUrl = null;
     } else {
       // Image URL processing
       terminalImageUrl = ImageUtil.getTerminalImageVariant(
@@ -161,10 +158,6 @@ class TerminalListItemState extends State<TerminalListItem> {
   }
 
   Widget buildCardContent(BuildContext context, String? terminalImageUrl) {
-    if (_hasImageError) {
-      return Row(children: [buildTextOnly()]);
-    }
-
     return Row(
       children: [
         buildImageSection(terminalImageUrl),
@@ -196,30 +189,6 @@ class TerminalListItemState extends State<TerminalListItem> {
         child: Text(
           widget.doc['name'] ?? 'Unknown',
           style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-
-  Widget buildTextOnly() {
-    return Expanded(
-      flex: 100,
-      child: SizedBox(
-        height: widget
-            .tileHeight, // Ensure the container has the same height as the image cards
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Center vertically
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                widget.doc['name'] ?? 'Unknown',
-                textAlign: TextAlign.center, // Center horizontally
-                style: const TextStyle(
-                    fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
         ),
       ),
     );
