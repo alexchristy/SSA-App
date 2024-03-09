@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:ssa_app/models/terminal.dart';
 import 'package:ssa_app/screens/terminal-list/terminal_list_screen.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
 
@@ -28,8 +28,7 @@ void main() {
       // Mock the TerminalService to simulate a failure
       final terminalService = MockTerminalService();
       when(terminalService.getTerminals()).thenAnswer(
-        (_) async =>
-            Future<List<QueryDocumentSnapshot>>.error('Failed to load data'),
+        (_) async => Future<List<Terminal>>.error('Failed to load data'),
       );
 
       // Build our app and trigger a frame.

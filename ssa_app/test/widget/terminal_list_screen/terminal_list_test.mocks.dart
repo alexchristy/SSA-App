@@ -3,11 +3,12 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i3;
+import 'dart:async' as _i5;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:ssa_app/utils/terminal_utils.dart' as _i2;
+import 'package:ssa_app/models/terminal.dart' as _i2;
+import 'package:ssa_app/utils/terminal_utils.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -22,22 +23,57 @@ import 'package:ssa_app/utils/terminal_utils.dart' as _i2;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
+class _FakeTerminal_0 extends _i1.SmartFake implements _i2.Terminal {
+  _FakeTerminal_0(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [TerminalService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTerminalService extends _i1.Mock implements _i2.TerminalService {
+class MockTerminalService extends _i1.Mock implements _i3.TerminalService {
   MockTerminalService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<List<_i4.QueryDocumentSnapshot<Object?>>> getTerminals() =>
+  _i2.Terminal getTerminalFromDoc(_i4.QueryDocumentSnapshot<Object?>? doc) =>
       (super.noSuchMethod(
+        Invocation.method(
+          #getTerminalFromDoc,
+          [doc],
+        ),
+        returnValue: _FakeTerminal_0(
+          this,
+          Invocation.method(
+            #getTerminalFromDoc,
+            [doc],
+          ),
+        ),
+      ) as _i2.Terminal);
+
+  @override
+  _i5.Future<List<_i2.Terminal>> getTerminals() => (super.noSuchMethod(
         Invocation.method(
           #getTerminals,
           [],
         ),
-        returnValue: _i3.Future<List<_i4.QueryDocumentSnapshot<Object?>>>.value(
+        returnValue: _i5.Future<List<_i2.Terminal>>.value(<_i2.Terminal>[]),
+      ) as _i5.Future<List<_i2.Terminal>>);
+
+  @override
+  _i5.Future<List<_i4.QueryDocumentSnapshot<Object?>>> getTerminalDocs() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getTerminalDocs,
+          [],
+        ),
+        returnValue: _i5.Future<List<_i4.QueryDocumentSnapshot<Object?>>>.value(
             <_i4.QueryDocumentSnapshot<Object?>>[]),
-      ) as _i3.Future<List<_i4.QueryDocumentSnapshot<Object?>>>);
+      ) as _i5.Future<List<_i4.QueryDocumentSnapshot<Object?>>>);
 }

@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart';
 import 'package:ssa_app/utils/image_utils.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
-import '../../constants/app_colors.dart';
+import 'package:ssa_app/constants/app_colors.dart';
+import 'package:ssa_app/models/terminal.dart';
 
 class TerminalsList extends StatelessWidget {
   final TerminalService terminalService;
@@ -18,21 +18,29 @@ class TerminalsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Terminals")),
-      body: FutureBuilder<List<QueryDocumentSnapshot>>(
+      body: FutureBuilder<List<Terminal>>(
         future: terminalService.getTerminals(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
+            // Keeps the loading indicator while terminals are being loaded.
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            // Better error handling
+            // Improved error handling with user feedback.
             debugPrint('Error: ${snapshot.error}');
             return const Center(
               child: Text(
-                "Error: Failed to load terminal data. Ensure you are connected to the internet.",
+                "Failed to load terminals. Check your connection and try again.",
                 key: Key("terminalLoadingError"),
+                textAlign: TextAlign.center,
               ),
             );
           } else {
+            // Consider adding a check for an empty list and display a message if no terminals are found.
+            if (snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text("No terminals found."),
+              );
+            }
             return buildTerminalList(context, snapshot);
           }
         },
@@ -40,19 +48,29 @@ class TerminalsList extends StatelessWidget {
     );
   }
 
-  Widget buildTerminalList(BuildContext context,
-      AsyncSnapshot<List<QueryDocumentSnapshot>> snapshot) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final tileWidth = getTileWidth(screenWidth);
-    final tileHeight = getTileHeight(tileWidth);
+  Widget buildTerminalList(
+      BuildContext context, AsyncSnapshot<List<Terminal>> snapshot) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    int tileWidth = getTileWidth(screenWidth);
+    int tileHeight = getTileHeight(tileWidth);
+    // Build your list view here based on the snapshot.data
     return ListView.builder(
-      itemCount: snapshot.data?.length ?? 0,
-      itemBuilder: (context, index) => TerminalListItem(
-        doc: snapshot.data![index].data() as Map<String, dynamic>,
-        screenWidth: screenWidth,
-        tileWidth: tileWidth.toDouble(),
-        tileHeight: tileHeight.toDouble(),
-      ),
+      itemCount: snapshot.data!.length,
+      itemBuilder: (context, index) {
+        Terminal terminal = snapshot.data![index];
+        // Convert Terminal object to Map<String, dynamic> if necessary. Adjust this according to your actual model.
+        Map<String, dynamic> terminalData = {
+          'name': terminal.name,
+          'terminalImageUrl': terminal.terminalImageUrl,
+          // Add other necessary fields from your Terminal model here
+        };
+        return TerminalListItem(
+          doc: terminalData,
+          screenWidth: screenWidth,
+          tileWidth: tileWidth.toDouble(),
+          tileHeight: tileHeight.toDouble(),
+        );
+      },
     );
   }
 
@@ -69,7 +87,7 @@ class TerminalsList extends StatelessWidget {
   }
 }
 
-class TerminalListItem extends StatelessWidget {
+class TerminalListItem extends StatefulWidget {
   final Map<String, dynamic> doc;
   final double screenWidth, tileWidth, tileHeight;
 
@@ -82,30 +100,43 @@ class TerminalListItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    String? terminalImageUrl = doc['terminalImageUrl'];
-    final imageWidth =
-        tileHeight; // Use the tile height as the image width for a square image
+  TerminalListItemState createState() => TerminalListItemState();
+}
 
-    // Image URL processing
-    terminalImageUrl = ImageUtil.getTerminalImageVariant(
-      terminalImageUrl ?? '',
-      imageWidth,
-      tileHeight,
-      context,
-    );
+class TerminalListItemState extends State<TerminalListItem> {
+  bool _hasImageError = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageWidth = widget.tileHeight;
+    final baseUrl = widget.doc['terminalImageUrl'] as String?;
+    String? terminalImageUrl;
+
+    // Check if the image URL is valid  and process it
+    if (baseUrl == null || baseUrl.isEmpty) {
+      _hasImageError = true;
+    } else {
+      // Image URL processing
+      terminalImageUrl = ImageUtil.getTerminalImageVariant(
+        baseUrl,
+        imageWidth,
+        widget.tileHeight,
+        context,
+      );
+    }
 
     return Padding(
       padding: EdgeInsets.only(
         bottom: 16.0,
-        left: (screenWidth - tileWidth) / 2,
-        right: (screenWidth - tileWidth) / 2,
+        left: (widget.screenWidth - widget.tileWidth) / 2,
+        right: (widget.screenWidth - widget.tileWidth) / 2,
       ),
       child: GestureDetector(
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => TerminalDetailPage(terminalData: doc),
+              builder: (context) =>
+                  TerminalDetailPage(terminalData: widget.doc),
             ),
           );
         },
@@ -130,6 +161,10 @@ class TerminalListItem extends StatelessWidget {
   }
 
   Widget buildCardContent(BuildContext context, String? terminalImageUrl) {
+    if (_hasImageError) {
+      return Row(children: [buildTextOnly()]);
+    }
+
     return Row(
       children: [
         buildImageSection(terminalImageUrl),
@@ -149,7 +184,7 @@ class TerminalListItem extends StatelessWidget {
               errorWidget: (context, url, error) => const Icon(Icons.error),
               fadeInDuration: const Duration(milliseconds: 300),
             )
-          : Container(color: AppColors.white, height: tileHeight),
+          : Container(color: AppColors.white, height: widget.tileHeight),
     );
   }
 
@@ -159,8 +194,32 @@ class TerminalListItem extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Text(
-          doc['name'] ?? 'Unknown',
+          widget.doc['name'] ?? 'Unknown',
           style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  Widget buildTextOnly() {
+    return Expanded(
+      flex: 100,
+      child: SizedBox(
+        height: widget
+            .tileHeight, // Ensure the container has the same height as the image cards
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                widget.doc['name'] ?? 'Unknown',
+                textAlign: TextAlign.center, // Center horizontally
+                style: const TextStyle(
+                    fontSize: 18.0, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
         ),
       ),
     );
