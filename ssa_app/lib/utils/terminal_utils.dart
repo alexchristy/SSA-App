@@ -57,18 +57,5 @@ class TerminalService {
           await collection.get(const GetOptions(source: Source.server));
       return querySnapshot.docs;
     }
-
-    // // If tryCache is true, try to get the documents from the cache first
-    // if (tryCache) {
-    //   var querySnapshot =
-    //       await collection.get(const GetOptions(source: Source.cache));
-    //   if (querySnapshot.docs.isNotEmpty) {
-    //     return
-    //   }
-    // }
-
-    // var querySnapshot =
-    //     await collection.get(const GetOptions(source: Source.server));
-    // return querySnapshot.docs;
   }
 }
