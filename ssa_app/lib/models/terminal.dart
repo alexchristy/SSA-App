@@ -100,4 +100,8 @@ class Terminal {
   String? getTerminalImageUrl() {
     return terminalImageUrl;
   }
+
+  String getGroup() {
+    return group;
+  }
 }

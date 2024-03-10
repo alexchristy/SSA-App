@@ -58,4 +58,18 @@ class TerminalService {
       return querySnapshot.docs;
     }
   }
+
+  Future<List<Terminal>> getTerminalsByGroups(
+      {required List<String> groups}) async {
+    // Return all terminals if no groups are provided
+    if (groups.isEmpty) {
+      return getTerminals();
+    }
+
+    return getTerminals().then((terminals) {
+      return terminals
+          .where((terminal) => groups.contains(terminal.getGroup()))
+          .toList();
+    });
+  }
 }

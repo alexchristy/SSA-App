@@ -6,8 +6,21 @@ import 'package:ssa_app/utils/image_utils.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
 import 'package:ssa_app/constants/app_colors.dart';
 import 'package:ssa_app/models/terminal.dart';
+import 'package:ssa_app/models/filter.dart';
+import 'package:ssa_app/screens/terminal-list/list_filters_widget.dart';
 
-class TerminalsList extends StatelessWidget {
+// Terminal Location Filters
+List<Filter> filters = [
+  Filter(id: "CENTCOM TERMINALS", name: "Middle East"),
+  Filter(id: "AMC CONUS TERMINALS", name: "USA"),
+  Filter(id: "EUCOM TERMINALS", name: "Europe"),
+  Filter(id: "INDOPACOM TERMINALS", name: "Asia-Pacific"),
+  Filter(id: "SOUTHCOM TERMINALS", name: "South America"),
+  Filter(id: "NON-AMC CONUS TERMINALS", name: "Non-AMC"),
+  Filter(id: "ANG & RESERVE TERMINALS", name: "ANG & Reserve"),
+];
+
+class TerminalsList extends StatefulWidget {
   final TerminalService terminalService;
 
   // If TerminalService is passed, use it; otherwise, create a new instance
@@ -15,34 +28,45 @@ class TerminalsList extends StatelessWidget {
       : terminalService = terminalService ?? TerminalService();
 
   @override
+  State<TerminalsList> createState() => _TerminalsListState();
+}
+
+class _TerminalsListState extends State<TerminalsList> {
+  List<String> selectedGroupIds = [];
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Terminals")),
-      body: FutureBuilder<List<Terminal>>(
-        future: terminalService.getTerminals(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Keeps the loading indicator while terminals are being loaded.
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            // Improved error handling with user feedback.
-            debugPrint('Error: ${snapshot.error}');
-            return const Center(
-              child: Text(
-                "Failed to load terminals. Check your connection and try again.",
-                textAlign: TextAlign.center,
+      body: Column(
+        children: [
+          TerminalFilterWidget(
+            filters: filters, // Assuming 'filters' is already defined somewhere
+            onFiltersSelected: (List<String> groupIds) {
+              setState(() {
+                selectedGroupIds = groupIds;
+              });
+            },
+          ),
+          Expanded(
+            child: FutureBuilder<List<Terminal>>(
+              future: widget.terminalService.getTerminalsByGroups(
+                groups: selectedGroupIds,
               ),
-            );
-          } else {
-            // Consider adding a check for an empty list and display a message if no terminals are found.
-            if (snapshot.data!.isEmpty) {
-              return const Center(
-                child: Text("No terminals found."),
-              );
-            }
-            return buildTerminalList(context, snapshot);
-          }
-        },
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                } else if (snapshot.data!.isEmpty) {
+                  return const Center(child: Text("No terminals found."));
+                } else {
+                  return buildTerminalList(context, snapshot);
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -54,19 +78,23 @@ class TerminalsList extends StatelessWidget {
     final double tileHeight =
         getTileHeight(MediaQuery.of(context).size.shortestSide);
 
+    final double listEdgePadding = (screenWidth - tileWidth) / 2;
+
     // Build your list view here based on the snapshot.data
-    return ListView.builder(
-      itemCount: snapshot.data!.length,
-      itemBuilder: (context, index) {
-        Terminal terminal = snapshot.data![index];
-        return TerminalListItem(
-          terminal: terminal,
-          screenWidth: screenWidth,
-          tileWidth: tileWidth.toDouble(),
-          tileHeight: tileHeight.toDouble(),
-        );
-      },
-    );
+    return Padding(
+        padding: EdgeInsets.only(top: listEdgePadding),
+        child: ListView.builder(
+          itemCount: snapshot.data!.length,
+          itemBuilder: (context, index) {
+            return TerminalListItem(
+              terminal: snapshot.data![index],
+              screenWidth: screenWidth,
+              tileWidth: tileWidth,
+              tileHeight: tileHeight,
+              egdePadding: listEdgePadding,
+            );
+          },
+        ));
   }
 
   void clearImageCache() {
@@ -86,7 +114,7 @@ class TerminalsList extends StatelessWidget {
 }
 
 class TerminalListItem extends StatefulWidget {
-  final double screenWidth, tileWidth, tileHeight;
+  final double screenWidth, tileWidth, tileHeight, egdePadding;
   final Terminal terminal;
 
   const TerminalListItem({
@@ -95,6 +123,7 @@ class TerminalListItem extends StatefulWidget {
     required this.screenWidth,
     required this.tileWidth,
     required this.tileHeight,
+    required this.egdePadding,
   });
 
   @override
@@ -107,8 +136,8 @@ class TerminalListItemState extends State<TerminalListItem> {
     return Padding(
       padding: EdgeInsets.only(
         bottom: 16.0,
-        left: (widget.screenWidth - widget.tileWidth) / 2,
-        right: (widget.screenWidth - widget.tileWidth) / 2,
+        left: widget.egdePadding,
+        right: widget.egdePadding,
       ),
       child: GestureDetector(
         onTap: () {
