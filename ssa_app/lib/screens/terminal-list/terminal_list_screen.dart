@@ -57,14 +57,8 @@ class TerminalsList extends StatelessWidget {
       itemCount: snapshot.data!.length,
       itemBuilder: (context, index) {
         Terminal terminal = snapshot.data![index];
-        // Convert Terminal object to Map<String, dynamic> if necessary. Adjust this according to your actual model.
-        Map<String, dynamic> terminalData = {
-          'name': terminal.name,
-          'terminalImageUrl': terminal.terminalImageUrl,
-          // Add other necessary fields from your Terminal model here
-        };
         return TerminalListItem(
-          doc: terminalData,
+          terminal: terminal,
           screenWidth: screenWidth,
           tileWidth: tileWidth.toDouble(),
           tileHeight: tileHeight.toDouble(),
@@ -87,12 +81,12 @@ class TerminalsList extends StatelessWidget {
 }
 
 class TerminalListItem extends StatefulWidget {
-  final Map<String, dynamic> doc;
   final double screenWidth, tileWidth, tileHeight;
+  final Terminal terminal;
 
   const TerminalListItem({
     super.key,
-    required this.doc,
+    required this.terminal,
     required this.screenWidth,
     required this.tileWidth,
     required this.tileHeight,
@@ -105,23 +99,6 @@ class TerminalListItem extends StatefulWidget {
 class TerminalListItemState extends State<TerminalListItem> {
   @override
   Widget build(BuildContext context) {
-    final imageWidth = widget.tileHeight;
-    final baseUrl = widget.doc['terminalImageUrl'] as String?;
-    String? terminalImageUrl;
-
-    // Check if the image URL is valid  and process it
-    if (baseUrl == null || baseUrl.isEmpty) {
-      terminalImageUrl = null;
-    } else {
-      // Image URL processing
-      terminalImageUrl = ImageUtil.getTerminalImageVariant(
-        baseUrl,
-        imageWidth,
-        widget.tileHeight,
-        context,
-      );
-    }
-
     return Padding(
       padding: EdgeInsets.only(
         bottom: 16.0,
@@ -133,12 +110,13 @@ class TerminalListItemState extends State<TerminalListItem> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) =>
-                  TerminalDetailPage(terminalData: widget.doc),
+                  TerminalDetailPage(terminalData: widget.terminal.toMap()),
             ),
           );
         },
         child: RepaintBoundary(
-          child: buildTerminalCard(context, terminalImageUrl),
+          child:
+              buildTerminalCard(context, widget.terminal.getTerminalImageUrl()),
         ),
       ),
     );
@@ -146,6 +124,7 @@ class TerminalListItemState extends State<TerminalListItem> {
 
   Widget buildTerminalCard(BuildContext context, String? terminalImageUrl) {
     return Card(
+      color: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
       ),
@@ -167,17 +146,38 @@ class TerminalListItemState extends State<TerminalListItem> {
   }
 
   Widget buildImageSection(String? imageUrl) {
+    String imageVariantUrl = ImageUtil.getTerminalImageVariant(
+        imageUrl, widget.tileWidth, widget.tileHeight, context);
+
+    if (imageVariantUrl.isEmpty) {
+      return buildFallbackImageWidget();
+    }
+
     return Expanded(
       flex: 35,
       child: imageUrl != null && imageUrl.isNotEmpty
           ? CachedNetworkImage(
-              imageUrl: imageUrl,
+              imageUrl: imageVariantUrl,
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(color: AppColors.white),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
+              errorWidget: (context, url, error) => buildFallbackImageWidget(),
               fadeInDuration: const Duration(milliseconds: 300),
             )
           : Container(color: AppColors.white, height: widget.tileHeight),
+    );
+  }
+
+  Widget buildFallbackImageWidget() {
+    final double imageWidth = widget.tileHeight;
+    final double imageHeight = widget.tileHeight;
+
+    return Container(
+      width: imageWidth,
+      height: imageHeight,
+      color: AppColors.white,
+      child: Center(
+        child: Icon(Icons.flight_takeoff, size: imageWidth * 0.5),
+      ),
     );
   }
 
@@ -187,7 +187,7 @@ class TerminalListItemState extends State<TerminalListItem> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Text(
-          widget.doc['name'] ?? 'Unknown',
+          widget.terminal.getName(),
           style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
         ),
       ),

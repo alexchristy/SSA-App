@@ -57,10 +57,10 @@ class Terminal {
       location: data['location'],
       name: data['name'],
       pagePosition: data['pagePosition'],
-      pdf30DayHash: data['pdf30DayHash'],
-      pdf72HourHash: data['pdf72HourHash'],
-      pdfRollcallHash: data['pdfRollcallHash'],
-      terminalImageUrl: data['terminalImageUrl'],
+      pdf30DayHash: data['pdf30DayHash'] as String?,
+      pdf72HourHash: data['pdf72HourHash'] as String?,
+      pdfRollcallHash: data['pdfRollcallHash'] as String?,
+      terminalImageUrl: data['terminalImageUrl'] as String?,
       timezone: data['timezone'],
     );
   }
@@ -83,5 +83,21 @@ class Terminal {
       'terminalImageUrl': terminalImageUrl,
       'timezone': timezone,
     };
+  }
+
+  String getName() {
+    return name;
+  }
+
+  String getLocation() {
+    return location;
+  }
+
+  String getLink() {
+    return link;
+  }
+
+  String? getTerminalImageUrl() {
+    return terminalImageUrl;
   }
 }

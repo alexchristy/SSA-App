@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 
 class ImageUtil {
-  static String getTerminalImageVariant(String baseUrl, double requiredWidth,
+  static String getTerminalImageVariant(String? baseUrl, double requiredWidth,
       double requiredHeight, BuildContext context) {
-    if (baseUrl.isEmpty) {
-      throw ArgumentError('baseUrl cannot be empty');
+    if (baseUrl == null || baseUrl.isEmpty) {
+      return "";
     }
 
     if (requiredWidth <= 0 || requiredHeight <= 0) {

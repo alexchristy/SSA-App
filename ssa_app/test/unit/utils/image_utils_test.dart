@@ -126,27 +126,50 @@ void main() {
           findsOneWidget);
     });
 
-    testWidgets('throws ArgumentError if baseUrl is empty',
+    testWidgets('Returns empty string if baseUrl is empty',
         (WidgetTester tester) async {
       // Define a test widget that uses MediaQuery
       Widget testWidget() {
         return MaterialApp(
           home: Builder(
             builder: (BuildContext context) {
-              return Text(() {
-                try {
-                  ImageUtil.getTerminalImageVariant('', 200, 200, context);
-                } on ArgumentError catch (e) {
-                  return e.message;
-                }
-              }());
+              const baseUrl = '';
+              final imageUrl =
+                  ImageUtil.getTerminalImageVariant(baseUrl, 200, 200, context);
+              return Text(imageUrl, key: const Key('emptyUrl'));
             },
           ),
         );
       }
 
+      // Check if the empty string is returned
       await tester.pumpWidget(testWidget());
-      expect(find.text('baseUrl cannot be empty'), findsOneWidget);
+
+      expect(find.text(''), findsOneWidget);
+      expect(find.byKey(const Key('emptyUrl')), findsOneWidget);
+    });
+
+    testWidgets('Returns empty string if baseUrl is null',
+        (WidgetTester tester) async {
+      // Define a test widget that uses MediaQuery
+      Widget testWidget() {
+        return MaterialApp(
+          home: Builder(
+            builder: (BuildContext context) {
+              const String? baseUrl = null;
+              final imageUrl =
+                  ImageUtil.getTerminalImageVariant(baseUrl, 200, 200, context);
+              return Text(imageUrl, key: const Key('nullUrl'));
+            },
+          ),
+        );
+      }
+
+      // Check if the empty string is returned
+      await tester.pumpWidget(testWidget());
+
+      expect(find.text(''), findsOneWidget);
+      expect(find.byKey(const Key('nullUrl')), findsOneWidget);
     });
   });
 }
