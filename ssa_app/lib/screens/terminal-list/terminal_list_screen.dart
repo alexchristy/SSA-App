@@ -96,43 +96,6 @@ class _TerminalsListState extends State<TerminalsList> {
     );
   }
 
-  CustomScrollView buildTerminalList(
-      List<Terminal> terminals,
-      double screenWidth,
-      double tileWidth,
-      double tileHeight,
-      double listEdgePadding) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: TerminalFilterWidget(
-            filters: filters,
-            onFiltersSelected: (List<String> groupIds) {
-              setState(() {
-                selectedGroupIds = groupIds;
-              });
-            },
-          ),
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final terminal = terminals[index];
-              return TerminalListItem(
-                terminal: terminal,
-                screenWidth: screenWidth,
-                tileWidth: tileWidth,
-                tileHeight: tileHeight,
-                egdePadding: listEdgePadding,
-              );
-            },
-            childCount: terminals.length,
-          ),
-        ),
-      ],
-    );
-  }
-
   void clearImageCache() {
     DefaultCacheManager().emptyCache();
   }
