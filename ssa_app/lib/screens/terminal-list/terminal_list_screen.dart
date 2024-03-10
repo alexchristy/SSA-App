@@ -33,46 +33,26 @@ class TerminalsList extends StatefulWidget {
 
 class _TerminalsListState extends State<TerminalsList> {
   List<String> selectedGroupIds = [];
+  List<Terminal> filteredTerminals = [];
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Terminals")),
-      body: Column(
-        children: [
-          TerminalFilterWidget(
-            filters: filters, // Assuming 'filters' is already defined somewhere
-            onFiltersSelected: (List<String> groupIds) {
-              setState(() {
-                selectedGroupIds = groupIds;
-              });
-            },
-          ),
-          Expanded(
-            child: FutureBuilder<List<Terminal>>(
-              future: widget.terminalService.getTerminalsByGroups(
-                groups: selectedGroupIds,
-              ),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}"));
-                } else if (snapshot.data!.isEmpty) {
-                  return const Center(child: Text("No terminals found."));
-                } else {
-                  return buildTerminalList(context, snapshot);
-                }
-              },
-            ),
-          ),
-        ],
-      ),
+  void initState() {
+    super.initState();
+    _loadTerminals();
+  }
+
+  void _loadTerminals() async {
+    widget.terminalService.getTerminalsByGroups(groups: selectedGroupIds).then(
+      (terminals) {
+        setState(() {
+          filteredTerminals = terminals;
+        });
+      },
     );
   }
 
-  Widget buildTerminalList(
-      BuildContext context, AsyncSnapshot<List<Terminal>> snapshot) {
+  @override
+  Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double tileWidth = getTileWidth(screenWidth);
     final double tileHeight =
@@ -80,21 +60,77 @@ class _TerminalsListState extends State<TerminalsList> {
 
     final double listEdgePadding = (screenWidth - tileWidth) / 2;
 
-    // Build your list view here based on the snapshot.data
-    return Padding(
-        padding: EdgeInsets.only(top: listEdgePadding),
-        child: ListView.builder(
-          itemCount: snapshot.data!.length,
-          itemBuilder: (context, index) {
-            return TerminalListItem(
-              terminal: snapshot.data![index],
-              screenWidth: screenWidth,
-              tileWidth: tileWidth,
-              tileHeight: tileHeight,
-              egdePadding: listEdgePadding,
-            );
-          },
-        ));
+    return Scaffold(
+      appBar: AppBar(title: const Text("Terminals")),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: TerminalFilterWidget(
+              filters:
+                  filters, // Assume `filters` is defined globally or passed in
+              onFiltersSelected: (List<String> groupIds) {
+                setState(() {
+                  selectedGroupIds = groupIds;
+                  _loadTerminals(); // Reload terminals based on the new filters
+                });
+              },
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final terminal = filteredTerminals[index];
+                return TerminalListItem(
+                  terminal: terminal,
+                  screenWidth: screenWidth,
+                  tileWidth: tileWidth,
+                  tileHeight: tileHeight,
+                  egdePadding: listEdgePadding,
+                );
+              },
+              childCount: filteredTerminals.length,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  CustomScrollView buildTerminalList(
+      List<Terminal> terminals,
+      double screenWidth,
+      double tileWidth,
+      double tileHeight,
+      double listEdgePadding) {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: TerminalFilterWidget(
+            filters: filters,
+            onFiltersSelected: (List<String> groupIds) {
+              setState(() {
+                selectedGroupIds = groupIds;
+              });
+            },
+          ),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final terminal = terminals[index];
+              return TerminalListItem(
+                terminal: terminal,
+                screenWidth: screenWidth,
+                tileWidth: tileWidth,
+                tileHeight: tileHeight,
+                egdePadding: listEdgePadding,
+              );
+            },
+            childCount: terminals.length,
+          ),
+        ),
+      ],
+    );
   }
 
   void clearImageCache() {
