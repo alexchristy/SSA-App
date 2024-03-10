@@ -49,9 +49,11 @@ class TerminalsList extends StatelessWidget {
 
   Widget buildTerminalList(
       BuildContext context, AsyncSnapshot<List<Terminal>> snapshot) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    int tileWidth = getTileWidth(screenWidth);
-    int tileHeight = getTileHeight(tileWidth);
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double tileWidth = getTileWidth(screenWidth);
+    final double tileHeight =
+        getTileHeight(MediaQuery.of(context).size.shortestSide);
+
     // Build your list view here based on the snapshot.data
     return ListView.builder(
       itemCount: snapshot.data!.length,
@@ -71,12 +73,15 @@ class TerminalsList extends StatelessWidget {
     DefaultCacheManager().emptyCache();
   }
 
-  int getTileWidth(double screenWidth) {
+  double getTileWidth(double screenWidth) {
     return ((screenWidth * 0.9) / 2).ceil() * 2; // Ensure it's an even number
   }
 
-  int getTileHeight(int tileWidth) {
-    return (tileWidth * 0.35).ceil(); // 35% tall of the tile width
+  // Calculate the tile height based on the shortest side of the screen
+  // and the tile width.
+  double getTileHeight(double shortestSide) {
+    double portraitTileWidth = getTileWidth(shortestSide);
+    return (portraitTileWidth * 0.36).ceilToDouble();
   }
 }
 
@@ -147,7 +152,7 @@ class TerminalListItemState extends State<TerminalListItem> {
 
   Widget buildImageSection(String? imageUrl) {
     String imageVariantUrl = ImageUtil.getTerminalImageVariant(
-        imageUrl, widget.tileWidth, widget.tileHeight, context);
+        imageUrl, widget.tileHeight, widget.tileHeight, context);
 
     // If the image variant URL is empty, this means
     // the link from the DB is invalid or the image is not available.
@@ -155,18 +160,16 @@ class TerminalListItemState extends State<TerminalListItem> {
       return buildFallbackImageWidget();
     }
 
-    return Expanded(
-      flex: 35,
-      child: imageUrl != null && imageUrl.isNotEmpty
-          ? CachedNetworkImage(
-              imageUrl: imageVariantUrl,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(color: AppColors.white),
-              errorWidget: (context, url, error) => buildFallbackImageWidget(),
-              fadeInDuration: const Duration(milliseconds: 300),
-            )
-          : Container(color: AppColors.white, height: widget.tileHeight),
-    );
+    return SizedBox(
+        height: widget.tileHeight,
+        width: widget.tileHeight,
+        child: CachedNetworkImage(
+          imageUrl: imageVariantUrl,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(color: AppColors.white),
+          errorWidget: (context, url, error) => buildFallbackImageWidget(),
+          fadeInDuration: const Duration(milliseconds: 300),
+        ));
   }
 
   Widget buildFallbackImageWidget() {
@@ -188,9 +191,20 @@ class TerminalListItemState extends State<TerminalListItem> {
       flex: 65,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text(
-          widget.terminal.getName(),
-          style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+        // Use a Column to ensure the text is top-aligned if it doesn't occupy all the available lines.
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.terminal.getName(),
+              style:
+                  const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              maxLines: 2, // Limit the text to 2 lines.
+              overflow:
+                  TextOverflow.ellipsis, // Show ellipsis if the text overflows.
+            ),
+          ],
         ),
       ),
     );
