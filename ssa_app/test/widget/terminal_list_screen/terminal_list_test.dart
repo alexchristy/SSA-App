@@ -122,5 +122,90 @@ void main() {
       // Check for the error message by finding a Text Widget with the specific Key
       expect(find.text("No terminals found."), findsOneWidget);
     });
+
+    testWidgets(
+        'Fallback to flight_takeoff icon when terminalImageUrl is empty',
+        (WidgetTester tester) async {
+      final terminalService = MockTerminalService();
+      when(terminalService.getTerminals()).thenAnswer((_) async => [
+            Terminal(
+              archiveDir: "",
+              group: "Group 1",
+              last30DayUpdateTimestamp: Timestamp.now(),
+              last72HourUpdateTimestamp: Timestamp.now(),
+              lastCheckTimestamp: Timestamp.now(),
+              lastRollcallUpdateTimestamp: Timestamp.now(),
+              link: "https://example.com/terminal1",
+              location: "Location 1",
+              name: "Terminal 1",
+              pagePosition: 1,
+              pdf30DayHash: "pdf30DayHash",
+              pdf72HourHash: "pdf72HourHash",
+              pdfRollcallHash: "pdfRollcallHash",
+              terminalImageUrl: "",
+              timezone: "America/New_York",
+            ),
+          ]);
+
+      await tester.pumpWidget(MaterialApp(
+        home: TerminalsList(terminalService: terminalService),
+      ));
+
+      // Pump to complete the Future
+      await tester.pumpAndSettle();
+
+      // Check that the number of Card widgets rendered is equal to the number of Terminal documents
+      expect(find.byType(Card), findsOneWidget);
+      expect(find.byType(TerminalListItem), findsOneWidget);
+
+      // Check that the text on the cards is the name of the terminal
+      expect(find.text("Terminal 1"), findsOneWidget);
+
+      // Check that the fallback icon is displayed
+      expect(find.byIcon(Icons.flight_takeoff), findsOneWidget);
+    });
+
+    testWidgets(
+      'Fallback to flight_takeoff icon when terminalImageUrl is null (attribute missing)',
+      (WidgetTester tester) async {
+        final terminalService = MockTerminalService();
+        when(terminalService.getTerminals()).thenAnswer((_) async => [
+              Terminal(
+                archiveDir: "",
+                group: "Group 1",
+                last30DayUpdateTimestamp: Timestamp.now(),
+                last72HourUpdateTimestamp: Timestamp.now(),
+                lastCheckTimestamp: Timestamp.now(),
+                lastRollcallUpdateTimestamp: Timestamp.now(),
+                link: "https://example.com/terminal1",
+                location: "Location 1",
+                name: "Terminal 1",
+                pagePosition: 1,
+                pdf30DayHash: "pdf30DayHash",
+                pdf72HourHash: "pdf72HourHash",
+                pdfRollcallHash: "pdfRollcallHash",
+                terminalImageUrl: null,
+                timezone: "America/New_York",
+              ),
+            ]);
+
+        await tester.pumpWidget(MaterialApp(
+          home: TerminalsList(terminalService: terminalService),
+        ));
+
+        // Pump to complete the Future
+        await tester.pumpAndSettle();
+
+        // Check that the number of Card widgets rendered is equal to the number of Terminal documents
+        expect(find.byType(Card), findsOneWidget);
+        expect(find.byType(TerminalListItem), findsOneWidget);
+
+        // Check that the text on the cards is the name of the terminal
+        expect(find.text("Terminal 1"), findsOneWidget);
+
+        // Check that the fallback icon is displayed
+        expect(find.byIcon(Icons.flight_takeoff), findsOneWidget);
+      },
+    );
   });
 }

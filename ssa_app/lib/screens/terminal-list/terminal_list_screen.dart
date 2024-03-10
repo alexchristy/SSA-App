@@ -149,6 +149,8 @@ class TerminalListItemState extends State<TerminalListItem> {
     String imageVariantUrl = ImageUtil.getTerminalImageVariant(
         imageUrl, widget.tileWidth, widget.tileHeight, context);
 
+    // If the image variant URL is empty, this means
+    // the link from the DB is invalid or the image is not available.
     if (imageVariantUrl.isEmpty) {
       return buildFallbackImageWidget();
     }
