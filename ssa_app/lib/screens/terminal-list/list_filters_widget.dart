@@ -17,8 +17,7 @@ class TerminalFilterWidget extends StatefulWidget {
 }
 
 class _TerminalFilterWidgetState extends State<TerminalFilterWidget> {
-  List<String> selectedFilterIds =
-      []; // Now a list to track multiple selections
+  List<String> selectedFilterIds = [];
 
   @override
   Widget build(BuildContext context) {
