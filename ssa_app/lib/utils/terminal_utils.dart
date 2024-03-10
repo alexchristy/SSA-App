@@ -34,9 +34,41 @@ class TerminalService {
     return Terminal.fromDocumentSnapshot(doc);
   }
 
-  Future<List<QueryDocumentSnapshot>> getTerminalDocs() async {
+  Future<List<QueryDocumentSnapshot>> getTerminalDocs({tryCache = true}) async {
     var collection = _firestore.collection('Terminals');
-    var querySnapshot = await collection.get();
-    return querySnapshot.docs;
+
+    try {
+      if (tryCache) {
+        var querySnapshot =
+            await collection.get(const GetOptions(source: Source.cache));
+        if (querySnapshot.docs.isNotEmpty) {
+          return querySnapshot.docs;
+        }
+      }
+
+      var querySnapshot =
+          await collection.get(const GetOptions(source: Source.serverAndCache));
+      return querySnapshot.docs;
+    }
+    // Handle errors or exceptions that may occur during the fetch of documents
+    catch (e) {
+      debugPrint("Error loading terminal documents from Firestore: $e");
+      var querySnapshot =
+          await collection.get(const GetOptions(source: Source.server));
+      return querySnapshot.docs;
+    }
+
+    // // If tryCache is true, try to get the documents from the cache first
+    // if (tryCache) {
+    //   var querySnapshot =
+    //       await collection.get(const GetOptions(source: Source.cache));
+    //   if (querySnapshot.docs.isNotEmpty) {
+    //     return
+    //   }
+    // }
+
+    // var querySnapshot =
+    //     await collection.get(const GetOptions(source: Source.server));
+    // return querySnapshot.docs;
   }
 }
