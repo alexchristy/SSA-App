@@ -78,4 +78,16 @@ class MockTerminalService extends _i1.Mock implements _i3.TerminalService {
         returnValue: _i4.Future<List<_i5.QueryDocumentSnapshot<Object?>>>.value(
             <_i5.QueryDocumentSnapshot<Object?>>[]),
       ) as _i4.Future<List<_i5.QueryDocumentSnapshot<Object?>>>);
+
+  @override
+  _i4.Future<List<_i2.Terminal>> getTerminalsByGroups(
+          {required List<String>? groups}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getTerminalsByGroups,
+          [],
+          {#groups: groups},
+        ),
+        returnValue: _i4.Future<List<_i2.Terminal>>.value(<_i2.Terminal>[]),
+      ) as _i4.Future<List<_i2.Terminal>>);
 }
