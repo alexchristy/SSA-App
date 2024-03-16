@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ssa_app/theme/app_theme.dart'; // Import your theme
-import 'package:ssa_app/screens/terminal-list/terminal_list_screen.dart';
+import 'package:ssa_app/screens/home/home_screen.dart'; // Import your home screen
 import 'services/firebase/firebase_init.dart'; // Import the Firebase initializer
 
 void main() async {
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'SmartSpaceA',
       theme: AppTheme.lightTheme, // Apply the theme here
-      home: TerminalsList(),
+      home: const HomeScreen(),
     );
   }
 }
