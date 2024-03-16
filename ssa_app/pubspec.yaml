@@ -84,6 +84,9 @@ flutter:
       fonts:
         - asset: fonts/Airport.ttf
 
+  assets:
+    - assets/c17_frontal_square_windows.svg
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
