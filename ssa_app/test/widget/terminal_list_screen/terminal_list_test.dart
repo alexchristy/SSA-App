@@ -7,6 +7,7 @@ import 'package:ssa_app/screens/terminal-list/terminal_list_screen.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ssa_app/screens/terminal-list/list_filters_widget.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 
 import 'terminal_list_test.mocks.dart';
 
@@ -243,5 +244,224 @@ void main() {
         expect(find.byType(TerminalFilterWidget), findsOneWidget);
       },
     );
+  });
+
+  group("TerminalList Screen filter tests", () {
+    testWidgets("Test that tapping filters reduces terminal cards.",
+        (WidgetTester tester) async {
+      final fakeFirestore = FakeFirebaseFirestore();
+
+      // Add some test data to the Firestore instance
+      fakeFirestore.collection("Terminals").add({
+        "archiveDir": "bleh",
+        "group": "EUCOM TERMINALS",
+        "last30DayUpdateTimestamp": Timestamp.now(),
+        "last72HourUpdateTimestamp": Timestamp.now(),
+        "lastCheckTimestamp": Timestamp.now(),
+        "lastRollcallUpdateTimestamp": Timestamp.now(),
+        "link": "https://example.com/terminal1",
+        "location": "Location 1",
+        "name": "Terminal 1",
+        "pagePosition": 1,
+        "pdf30DayHash": "pdf30DayHash",
+        "pdf72HourHash": "pdf72HourHash",
+        "pdfRollcallHash": "pdfRollcallHash",
+        "terminalImageUrl": "",
+        "timezone": "America/New_York",
+      });
+
+      fakeFirestore.collection("Terminals").add({
+        "archiveDir": "bleh",
+        "group": "CENTCOM TERMINALS",
+        "last30DayUpdateTimestamp": Timestamp.now(),
+        "last72HourUpdateTimestamp": Timestamp.now(),
+        "lastCheckTimestamp": Timestamp.now(),
+        "lastRollcallUpdateTimestamp": Timestamp.now(),
+        "link": "https://example.com/terminal2",
+        "location": "Location 2",
+        "name": "Terminal 2",
+        "pagePosition": 2,
+        "pdf30DayHash": "pdf30DayHash",
+        "pdf72HourHash": "pdf72HourHash",
+        "pdfRollcallHash": "pdfRollcallHash",
+        "terminalImageUrl": "",
+        "timezone": "America/New_York",
+      });
+
+      final terminalService = TerminalService(firestore: fakeFirestore);
+
+      await tester.pumpWidget(MaterialApp(
+        home: TerminalsList(terminalService: terminalService),
+      ));
+
+      // Pump to complete the Future
+      await tester.pumpAndSettle();
+
+      // Check that the number of Card widgets rendered is equal to the number of Terminal documents
+      expect(find.byType(Card), findsNWidgets(2));
+      expect(find.byType(TerminalListItem), findsNWidgets(2));
+
+      // Make sure the filters are displayed
+      expect(find.byType(TerminalFilterWidget), findsOneWidget);
+
+      // Tap the filter button
+      await tester.tap(find.text("Europe"));
+      await tester.pumpAndSettle();
+
+      // Check that only one card is displayed
+      expect(find.byType(Card), findsOneWidget);
+      expect(find.byType(TerminalListItem), findsOneWidget);
+
+      // Check that the text on the card is the name of the terminal
+      expect(find.text("Terminal 1"), findsOneWidget);
+    });
+
+    testWidgets("Test that choosing a filter with no matches shows a message.",
+        (WidgetTester tester) async {
+      final fakeFirestore = FakeFirebaseFirestore();
+
+      // Add some test data to the Firestore instance
+      fakeFirestore.collection("Terminals").add({
+        "archiveDir": "bleh",
+        "group": "EUCOM TERMINALS",
+        "last30DayUpdateTimestamp": Timestamp.now(),
+        "last72HourUpdateTimestamp": Timestamp.now(),
+        "lastCheckTimestamp": Timestamp.now(),
+        "lastRollcallUpdateTimestamp": Timestamp.now(),
+        "link": "https://example.com/terminal1",
+        "location": "Location 1",
+        "name": "Terminal 1",
+        "pagePosition": 1,
+        "pdf30DayHash": "pdf30DayHash",
+        "pdf72HourHash": "pdf72HourHash",
+        "pdfRollcallHash": "pdfRollcallHash",
+        "terminalImageUrl": "",
+        "timezone": "America/New_York",
+      });
+
+      fakeFirestore.collection("Terminals").add({
+        "archiveDir": "bleh",
+        "group": "CENTCOM TERMINALS",
+        "last30DayUpdateTimestamp": Timestamp.now(),
+        "last72HourUpdateTimestamp": Timestamp.now(),
+        "lastCheckTimestamp": Timestamp.now(),
+        "lastRollcallUpdateTimestamp": Timestamp.now(),
+        "link": "https://example.com/terminal2",
+        "location": "Location 2",
+        "name": "Terminal 2",
+        "pagePosition": 2,
+        "pdf30DayHash": "pdf30DayHash",
+        "pdf72HourHash": "pdf72HourHash",
+        "pdfRollcallHash": "pdfRollcallHash",
+        "terminalImageUrl": "",
+        "timezone": "America/New_York",
+      });
+
+      final terminalService = TerminalService(firestore: fakeFirestore);
+
+      await tester.pumpWidget(MaterialApp(
+        home: TerminalsList(terminalService: terminalService),
+      ));
+
+      // Pump to complete the Future
+      await tester.pumpAndSettle();
+
+      // Check that the number of Card widgets rendered is equal to the number of Terminal documents
+      expect(find.byType(Card), findsNWidgets(2));
+      expect(find.byType(TerminalListItem), findsNWidgets(2));
+
+      // Make sure the filters are displayed
+      expect(find.byType(TerminalFilterWidget), findsOneWidget);
+
+      // Tap the filter button
+      await tester.tap(find.text("USA"));
+      await tester.pumpAndSettle();
+
+      // Check that no cards are displayed
+      expect(find.byType(Card), findsNothing);
+      expect(find.byType(TerminalListItem), findsNothing);
+
+      // Check that the message is displayed
+      expect(find.text("No terminals found."), findsOneWidget);
+    });
+
+    testWidgets("Test that tapping all filters shows all termianls.",
+        (WidgetTester tester) async {
+      final fakeFirestore = FakeFirebaseFirestore();
+
+      // Add some test data to the Firestore instance
+      fakeFirestore.collection("Terminals").add({
+        "archiveDir": "bleh",
+        "group": "AMC CONUS TERMINALS",
+        "last30DayUpdateTimestamp": Timestamp.now(),
+        "last72HourUpdateTimestamp": Timestamp.now(),
+        "lastCheckTimestamp": Timestamp.now(),
+        "lastRollcallUpdateTimestamp": Timestamp.now(),
+        "link": "https://example.com/terminal1",
+        "location": "Location 1",
+        "name": "Terminal 1",
+        "pagePosition": 1,
+        "pdf30DayHash": "pdf30DayHash",
+        "pdf72HourHash": "pdf72HourHash",
+        "pdfRollcallHash": "pdfRollcallHash",
+        "terminalImageUrl": "",
+        "timezone": "America/New_York",
+      });
+
+      fakeFirestore.collection("Terminals").add({
+        "archiveDir": "bleh",
+        "group": "EUCOM TERMINALS",
+        "last30DayUpdateTimestamp": Timestamp.now(),
+        "last72HourUpdateTimestamp": Timestamp.now(),
+        "lastCheckTimestamp": Timestamp.now(),
+        "lastRollcallUpdateTimestamp": Timestamp.now(),
+        "link": "https://example.com/terminal1",
+        "location": "Location 1",
+        "name": "Terminal 2",
+        "pagePosition": 1,
+        "pdf30DayHash": "pdf30DayHash",
+        "pdf72HourHash": "pdf72HourHash",
+        "pdfRollcallHash": "pdfRollcallHash",
+        "terminalImageUrl": "",
+        "timezone": "America/New_York",
+      });
+
+      final terminalService = TerminalService(firestore: fakeFirestore);
+
+      await tester.pumpWidget(MaterialApp(
+        home: TerminalsList(terminalService: terminalService),
+      ));
+
+      // Pump to complete the Future
+      await tester.pumpAndSettle();
+
+      // debugDumpApp();
+
+      // Check that the number of Card widgets rendered is equal to the number of Terminal documents
+      expect(find.byType(Card), findsNWidgets(2));
+      expect(find.byType(TerminalListItem), findsNWidgets(2));
+
+      // Make sure the filters are displayed
+      expect(find.byType(TerminalFilterWidget), findsOneWidget);
+
+      // Tap the filter button
+      await tester.tap(find.text("USA"));
+      await tester.pumpAndSettle();
+
+      // Check only Terminal 3 is displayed
+      expect(find.byType(Card), findsOneWidget);
+      expect(find.byType(TerminalListItem), findsOneWidget);
+      expect(find.text("Terminal 1"), findsOneWidget);
+
+      // Tap the filter button
+      await tester.tap(find.text("Europe"));
+      await tester.pumpAndSettle();
+
+      // Check check Terminal 1 is also displayed
+      expect(find.byType(Card), findsNWidgets(2));
+      expect(find.byType(TerminalListItem), findsNWidgets(2));
+      expect(find.text("Terminal 1"), findsOneWidget);
+      expect(find.text("Terminal 2"), findsOneWidget);
+    });
   });
 }
