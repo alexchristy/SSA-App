@@ -95,6 +95,57 @@ void main() {
       // Make sure the filters are displayed
       expect(find.byType(TerminalFilterWidget), findsOneWidget);
     });
+
+    testWidgets("Test that the search button is rendered",
+        (WidgetTester tester) async {
+      final terminalService = MockTerminalService();
+      when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+          .thenAnswer((_) async => []);
+
+      await tester.pumpWidget(MaterialApp(
+        home: TerminalsList(terminalService: terminalService),
+      ));
+
+      // Pump to complete the Future
+      await tester.pumpAndSettle();
+
+      // Check that the search button is displayed
+      expect(find.byIcon(Icons.search), findsOne);
+    });
+
+    testWidgets("Test that the back arrow is rendered",
+        ((WidgetTester tester) async {
+      final terminalService = MockTerminalService();
+      when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+          .thenAnswer((_) async => []);
+
+      await tester.pumpWidget(MaterialApp(
+        home: TerminalsList(terminalService: terminalService),
+      ));
+
+      // Pump to complete the Future
+      await tester.pumpAndSettle();
+
+      // Check that the back arrow is displayed
+      expect(find.byIcon(Icons.arrow_back), findsOne);
+    }));
+
+    testWidgets("Test that the AppBar has the text 'Terminals'",
+        (WidgetTester tester) async {
+      final terminalService = MockTerminalService();
+      when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+          .thenAnswer((_) async => []);
+
+      await tester.pumpWidget(MaterialApp(
+        home: TerminalsList(terminalService: terminalService),
+      ));
+
+      // Pump to complete the Future
+      await tester.pumpAndSettle();
+
+      // Check that the AppBar has the text 'Terminals'
+      expect(find.text("Terminals"), findsOne);
+    });
   });
 
   group("TerminalsList widget error handling tests.", () {

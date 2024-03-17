@@ -85,6 +85,7 @@ class _TerminalsListState extends State<TerminalsList> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
     final double tileWidth = getTileWidth(screenWidth);
     final double tileHeight =
         getTileHeight(MediaQuery.of(context).size.shortestSide);
@@ -93,7 +94,8 @@ class _TerminalsListState extends State<TerminalsList> {
     final double topFilterPadding = (0.8 * listEdgePadding).floorToDouble();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Terminals")),
+      appBar: buildAppBar(context,
+          screenHeight: screenHeight, edgePadding: listEdgePadding),
       body: Stack(
         children: [
           buildList(
@@ -148,6 +150,57 @@ class _TerminalsListState extends State<TerminalsList> {
         ],
       ),
     );
+  }
+
+  PreferredSize buildAppBar(BuildContext context,
+      {double screenHeight = 0.0, double edgePadding = 8.0}) {
+    // Calculate the app bar height with consideration for the icon size and padding
+    double baseAppBarHeight =
+        54.0; // Minimum height based on icon size and padding
+    double calculatedAppBarHeight = (screenHeight * 0.08).floorToDouble();
+    double appBarHeight = calculatedAppBarHeight > baseAppBarHeight
+        ? calculatedAppBarHeight
+        : baseAppBarHeight;
+
+    // Customizing the AppBar theme locally
+    final appBarTheme = Theme.of(context).appBarTheme.copyWith(
+          iconTheme: const IconThemeData(
+            size: 36, // Set your desired back arrow icon size
+          ),
+          actionsIconTheme: const IconThemeData(
+            size:
+                36, // Set your desired action icon size, affects the search icon here
+          ),
+        );
+
+    return PreferredSize(
+        preferredSize: Size.fromHeight(appBarHeight),
+        child: AppBar(
+          backgroundColor: AppColors.ghostWhite,
+          title: const Text("Terminals", style: TextStyle(fontSize: 36.0)),
+          leading: Padding(
+            // Apply left padding to the leading icon
+            padding: const EdgeInsets.only(left: 8.0),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          actions: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(right: edgePadding),
+              child: IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  // Define the action for the search button here.
+                },
+              ),
+            ),
+          ],
+          // Applying the customized theme to the AppBar
+          iconTheme: appBarTheme.iconTheme,
+          actionsIconTheme: appBarTheme.actionsIconTheme,
+        ));
   }
 
   Widget buildList(
