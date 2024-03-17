@@ -146,6 +146,34 @@ void main() {
       // Check that the AppBar has the text 'Terminals'
       expect(find.text("Terminals"), findsOne);
     });
+
+    testWidgets('AppBar defaults to minimum height when screen height is small',
+        (WidgetTester tester) async {
+      // Define a small screen height where 8% is less than the minimum height
+      tester.view.physicalSize = const Size(360, 600); // Small screen
+
+      final terminalService = MockTerminalService();
+      // Mock the terminalService to return an empty list
+      when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+          .thenAnswer((_) async => []);
+
+      await tester.pumpWidget(MaterialApp(
+          home: TerminalsList(
+        terminalService: terminalService,
+      )));
+
+      // Pump to complete the Future
+      await tester.pumpAndSettle();
+
+      // Define the expected minimum height of the AppBar
+      const double expectedMinHeight = 54.0;
+
+      // Find the AppBar and verify its height
+      final appBar = tester.widget<PreferredSize>(find.byType(PreferredSize));
+      expect(appBar.preferredSize.height, expectedMinHeight);
+
+      tester.view.resetPhysicalSize();
+    });
   });
 
   group("TerminalsList widget error handling tests.", () {

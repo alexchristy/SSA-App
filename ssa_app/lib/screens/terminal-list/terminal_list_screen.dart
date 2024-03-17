@@ -85,7 +85,6 @@ class _TerminalsListState extends State<TerminalsList> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
     final double tileWidth = getTileWidth(screenWidth);
     final double tileHeight =
         getTileHeight(MediaQuery.of(context).size.shortestSide);
@@ -94,8 +93,7 @@ class _TerminalsListState extends State<TerminalsList> {
     final double topFilterPadding = (0.8 * listEdgePadding).floorToDouble();
 
     return Scaffold(
-      appBar: buildAppBar(context,
-          screenHeight: screenHeight, edgePadding: listEdgePadding),
+      appBar: buildAppBar(context, edgePadding: listEdgePadding),
       body: Stack(
         children: [
           buildList(
@@ -152,15 +150,9 @@ class _TerminalsListState extends State<TerminalsList> {
     );
   }
 
-  PreferredSize buildAppBar(BuildContext context,
-      {double screenHeight = 0.0, double edgePadding = 8.0}) {
+  PreferredSize buildAppBar(BuildContext context, {double edgePadding = 8.0}) {
     // Calculate the app bar height with consideration for the icon size and padding
-    double baseAppBarHeight =
-        54.0; // Minimum height based on icon size and padding
-    double calculatedAppBarHeight = (screenHeight * 0.08).floorToDouble();
-    double appBarHeight = calculatedAppBarHeight > baseAppBarHeight
-        ? calculatedAppBarHeight
-        : baseAppBarHeight;
+    double baseAppBarHeight = 54.0;
 
     // Customizing the AppBar theme locally
     final appBarTheme = Theme.of(context).appBarTheme.copyWith(
@@ -174,7 +166,7 @@ class _TerminalsListState extends State<TerminalsList> {
         );
 
     return PreferredSize(
-        preferredSize: Size.fromHeight(appBarHeight),
+        preferredSize: Size.fromHeight(baseAppBarHeight),
         child: AppBar(
           backgroundColor: AppColors.ghostWhite,
           title: const Text("Terminals", style: TextStyle(fontSize: 36.0)),
