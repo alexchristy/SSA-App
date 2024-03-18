@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ssa_app/screens/tearminal-search/terminal_search_screen.dart';
+import 'package:ssa_app/screens/terminal-search/terminal_search_screen.dart';
 
 void main() {
   group("Loading Terminal search screen tests.", () {

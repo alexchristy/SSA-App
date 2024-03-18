@@ -8,7 +8,7 @@ import 'package:ssa_app/constants/app_colors.dart';
 import 'package:ssa_app/models/terminal.dart';
 import 'package:ssa_app/models/filter.dart';
 import 'package:ssa_app/screens/terminal-list/list_filters_widget.dart';
-import 'package:ssa_app/screens/tearminal-search/terminal_search_screen.dart';
+import 'package:ssa_app/screens/terminal-search/terminal_search_screen.dart';
 import 'package:ssa_app/transitions/slide_up_transition.dart';
 
 // Terminal Location Filters
