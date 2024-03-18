@@ -149,7 +149,6 @@ void main() {
 
     testWidgets('AppBar defaults to minimum height when screen height is small',
         (WidgetTester tester) async {
-      // Define a small screen height where 8% is less than the minimum height
       tester.view.physicalSize = const Size(360, 600); // Small screen
 
       final terminalService = MockTerminalService();
@@ -166,7 +165,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Define the expected minimum height of the AppBar
-      const double expectedMinHeight = 54.0;
+      const double expectedMinHeight = 50.0;
 
       // Find the AppBar and verify its height
       final appBar = tester.widget<PreferredSize>(find.byType(PreferredSize));

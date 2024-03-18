@@ -152,16 +152,16 @@ class _TerminalsListState extends State<TerminalsList> {
 
   PreferredSize buildAppBar(BuildContext context, {double edgePadding = 8.0}) {
     // Calculate the app bar height with consideration for the icon size and padding
-    double baseAppBarHeight = 54.0;
+    double baseAppBarHeight = 50.0;
 
     // Customizing the AppBar theme locally
     final appBarTheme = Theme.of(context).appBarTheme.copyWith(
           iconTheme: const IconThemeData(
-            size: 36, // Set your desired back arrow icon size
+            size: 32, // Set your desired back arrow icon size
           ),
           actionsIconTheme: const IconThemeData(
             size:
-                36, // Set your desired action icon size, affects the search icon here
+                32, // Set your desired action icon size, affects the search icon here
           ),
         );
 
@@ -169,7 +169,7 @@ class _TerminalsListState extends State<TerminalsList> {
         preferredSize: Size.fromHeight(baseAppBarHeight),
         child: AppBar(
           backgroundColor: AppColors.ghostWhite,
-          title: const Text("Terminals", style: TextStyle(fontSize: 36.0)),
+          title: const Text("Terminals", style: TextStyle(fontSize: 32.0)),
           leading: Padding(
             // Apply left padding to the leading icon
             padding: const EdgeInsets.only(left: 8.0),
