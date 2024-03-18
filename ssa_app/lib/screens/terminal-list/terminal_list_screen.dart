@@ -45,7 +45,7 @@ class _TerminalsListState extends State<TerminalsList> {
     _loadTerminals();
   }
 
-  void _loadTerminals() async {
+  void _loadTerminals({fromCache = true}) async {
     const int delayBeforeShowingIndicator = 50; // Delay in milliseconds
     bool showIndicator = true;
 
@@ -65,7 +65,7 @@ class _TerminalsListState extends State<TerminalsList> {
 
     try {
       List<Terminal> terminals = await widget.terminalService
-          .getTerminalsByGroups(groups: selectedGroupIds);
+          .getTerminalsByGroups(groups: selectedGroupIds, fromCache: fromCache);
 
       // By the time terminals are fetched, decide not to show the indicator if loaded quickly
       showIndicator = false;
@@ -187,7 +187,7 @@ class _TerminalsListState extends State<TerminalsList> {
                 icon: const Icon(Icons.search),
                 onPressed: () {
                   Navigator.of(context).push(SlideUpTransition(
-                      builder: (context) => TerminalSearchScreen()));
+                      builder: (context) => const TerminalSearchScreen()));
                 },
               ),
             ),
@@ -204,18 +204,22 @@ class _TerminalsListState extends State<TerminalsList> {
       double tileHeight = 0.0,
       double listEdgePadding = 0.0,
       double topFilterPadding = 0.0}) {
-    return CustomScrollView(
-      slivers: [
-        buildListFilters(
-            topFilterPadding: topFilterPadding,
-            listEdgePadding: listEdgePadding),
-        buildTerminalList(
-            screenWidth: screenWidth,
-            tileWidth: tileWidth,
-            tileHeight: tileHeight,
-            listEdgePadding: listEdgePadding),
-      ],
-    );
+    return RefreshIndicator(
+        onRefresh: () async {
+          _loadTerminals(fromCache: false);
+        },
+        child: CustomScrollView(
+          slivers: [
+            buildListFilters(
+                topFilterPadding: topFilterPadding,
+                listEdgePadding: listEdgePadding),
+            buildTerminalList(
+                screenWidth: screenWidth,
+                tileWidth: tileWidth,
+                tileHeight: tileHeight,
+                listEdgePadding: listEdgePadding),
+          ],
+        ));
   }
 
   Widget buildListFilters(

@@ -42,10 +42,12 @@ class MockTerminalService extends _i1.Mock implements _i3.TerminalService {
   }
 
   @override
-  _i4.Future<List<_i2.Terminal>> getTerminals() => (super.noSuchMethod(
+  _i4.Future<List<_i2.Terminal>> getTerminals({dynamic fromCache = true}) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getTerminals,
           [],
+          {#fromCache: fromCache},
         ),
         returnValue: _i4.Future<List<_i2.Terminal>>.value(<_i2.Terminal>[]),
       ) as _i4.Future<List<_i2.Terminal>>);
@@ -68,25 +70,30 @@ class MockTerminalService extends _i1.Mock implements _i3.TerminalService {
 
   @override
   _i4.Future<List<_i5.QueryDocumentSnapshot<Object?>>> getTerminalDocs(
-          {dynamic tryCache = true}) =>
+          {dynamic fromCache = true}) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTerminalDocs,
           [],
-          {#tryCache: tryCache},
+          {#fromCache: fromCache},
         ),
         returnValue: _i4.Future<List<_i5.QueryDocumentSnapshot<Object?>>>.value(
             <_i5.QueryDocumentSnapshot<Object?>>[]),
       ) as _i4.Future<List<_i5.QueryDocumentSnapshot<Object?>>>);
 
   @override
-  _i4.Future<List<_i2.Terminal>> getTerminalsByGroups(
-          {required List<String>? groups}) =>
+  _i4.Future<List<_i2.Terminal>> getTerminalsByGroups({
+    required List<String>? groups,
+    dynamic fromCache = true,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTerminalsByGroups,
           [],
-          {#groups: groups},
+          {
+            #groups: groups,
+            #fromCache: fromCache,
+          },
         ),
         returnValue: _i4.Future<List<_i2.Terminal>>.value(<_i2.Terminal>[]),
       ) as _i4.Future<List<_i2.Terminal>>);

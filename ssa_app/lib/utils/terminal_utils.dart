@@ -8,10 +8,10 @@ class TerminalService {
   TerminalService({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  Future<List<Terminal>> getTerminals() async {
+  Future<List<Terminal>> getTerminals({fromCache = true}) async {
     List<Terminal> terminals = [];
     try {
-      var docs = await getTerminalDocs();
+      var docs = await getTerminalDocs(fromCache: fromCache);
       for (var doc in docs) {
         try {
           // Attempt to parse the document into a Terminal object
@@ -34,11 +34,12 @@ class TerminalService {
     return Terminal.fromDocumentSnapshot(doc);
   }
 
-  Future<List<QueryDocumentSnapshot>> getTerminalDocs({tryCache = true}) async {
+  Future<List<QueryDocumentSnapshot>> getTerminalDocs(
+      {fromCache = true}) async {
     var collection = _firestore.collection('Terminals');
 
     try {
-      if (tryCache) {
+      if (fromCache) {
         var querySnapshot =
             await collection.get(const GetOptions(source: Source.cache));
         if (querySnapshot.docs.isNotEmpty) {
@@ -60,13 +61,13 @@ class TerminalService {
   }
 
   Future<List<Terminal>> getTerminalsByGroups(
-      {required List<String> groups}) async {
+      {required List<String> groups, fromCache = true}) async {
     // Return all terminals if no groups are provided
     if (groups.isEmpty) {
       return getTerminals();
     }
 
-    return getTerminals().then((terminals) {
+    return getTerminals(fromCache: fromCache).then((terminals) {
       return terminals
           .where((terminal) => groups.contains(terminal.getGroup()))
           .toList();

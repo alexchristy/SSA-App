@@ -175,6 +175,43 @@ void main() {
     });
   });
 
+  group("TerminalsList Screen refresh tests", () {
+    testWidgets("Verify pull-down to refresh uses fromCache: false",
+        (WidgetTester tester) async {
+      // Setup the mock TerminalService
+      final mockTerminalService = MockTerminalService();
+
+      // When getTerminalsByGroups is called with any groups and fromCache: false,
+      // return an empty list to simulate a successful call.
+      when(mockTerminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: false))
+          .thenAnswer((_) async => <Terminal>[]);
+
+      // Pump the TerminalsList widget with the mocked service
+      await tester.pumpWidget(MaterialApp(
+        home: TerminalsList(terminalService: mockTerminalService),
+      ));
+
+      // Complete the initial load
+      await tester.pumpAndSettle();
+
+      // Simulate the pull-to-refresh action
+      final finder = find.byType(CustomScrollView);
+      expect(finder, findsOneWidget);
+      await tester.fling(finder, const Offset(0, 300), 1000);
+      await tester.pump();
+
+      // Wait for the RefreshIndicator to show up and complete its animation
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+
+      // Verify that getTerminalsByGroups was called with fromCache: false
+      verify(mockTerminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: false))
+          .called(1);
+    });
+  });
+
   group("TerminalsList widget error handling tests.", () {
     testWidgets('Should display an error message when data loading fails',
         (WidgetTester tester) async {
