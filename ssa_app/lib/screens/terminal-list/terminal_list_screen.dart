@@ -10,6 +10,8 @@ import 'package:ssa_app/models/filter.dart';
 import 'package:ssa_app/screens/terminal-list/list_filters_widget.dart';
 import 'package:ssa_app/screens/terminal-search/terminal_search_screen.dart';
 import 'package:ssa_app/transitions/slide_up_transition.dart';
+import 'package:ssa_app/providers/terminals_provider.dart';
+import 'package:provider/provider.dart';
 
 // Terminal Location Filters
 List<Filter> filters = [
@@ -38,16 +40,27 @@ class _TerminalsListState extends State<TerminalsList> {
   List<Terminal> filteredTerminals = [];
   bool isLoading = true;
   String? errorMessage;
+  bool downloadedTerminals = false;
 
   @override
   void initState() {
     super.initState();
-    _loadTerminals(fromCache: false);
+    downloadedTerminals = Provider.of<TerminalsProvider>(context, listen: false)
+        .downloadedTerminals;
+
+    if (!downloadedTerminals) {
+      _loadTerminals(fromCache: false);
+      Provider.of<TerminalsProvider>(context, listen: false)
+          .downloadedTerminals = true;
+    } else {
+      _loadTerminals(fromCache: true);
+    }
   }
 
   void _loadTerminals({fromCache = true}) async {
     const int delayBeforeShowingIndicator = 50; // Delay in milliseconds
     bool showIndicator = true;
+    debugPrint("Loading terminals with cache: $fromCache");
 
     setState(() {
       errorMessage = null;

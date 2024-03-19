@@ -43,11 +43,15 @@ class TerminalService {
         var querySnapshot =
             await collection.get(const GetOptions(source: Source.cache));
         if (querySnapshot.docs.isNotEmpty) {
+          debugPrint(
+              "Loaded ${querySnapshot.docs.length} terminal docs from cache");
           return querySnapshot.docs;
         }
       }
 
       var querySnapshot = await collection.get();
+      debugPrint(
+          "Loaded ${querySnapshot.docs.length} terminal docs from server");
       return querySnapshot.docs;
     }
     // Handle errors or exceptions that may occur during the fetch of documents

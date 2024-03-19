@@ -8,6 +8,8 @@ import 'package:ssa_app/utils/terminal_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ssa_app/screens/terminal-list/list_filters_widget.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:ssa_app/providers/terminals_provider.dart';
 
 import 'terminal_list_test.mocks.dart';
 
@@ -22,7 +24,10 @@ void main() {
           .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
+        home: ChangeNotifierProvider(
+          create: (context) => TerminalsProvider(),
+          child: TerminalsList(terminalService: terminalService),
+        ),
       ));
 
       // Initially, you should find the CircularProgressIndicator
@@ -80,7 +85,10 @@ void main() {
               ]);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
+        home: ChangeNotifierProvider(
+          create: (context) => TerminalsProvider(),
+          child: TerminalsList(terminalService: terminalService),
+        ),
       ));
 
       // Pump to complete the Future
@@ -105,7 +113,10 @@ void main() {
           .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
+        home: ChangeNotifierProvider(
+          create: (context) => TerminalsProvider(),
+          child: TerminalsList(terminalService: terminalService),
+        ),
       ));
 
       // Pump to complete the Future
@@ -122,8 +133,10 @@ void main() {
           .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
-      ));
+          home: ChangeNotifierProvider(
+        create: (context) => TerminalsProvider(),
+        child: TerminalsList(terminalService: terminalService),
+      )));
 
       // Pump to complete the Future
       await tester.pumpAndSettle();
@@ -139,8 +152,10 @@ void main() {
           .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
-      ));
+          home: ChangeNotifierProvider(
+        create: (context) => TerminalsProvider(),
+        child: TerminalsList(terminalService: terminalService),
+      )));
 
       // Pump to complete the Future
       await tester.pumpAndSettle();
@@ -160,8 +175,9 @@ void main() {
           .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
-          home: TerminalsList(
-        terminalService: terminalService,
+          home: ChangeNotifierProvider(
+        create: (context) => TerminalsProvider(),
+        child: TerminalsList(terminalService: terminalService),
       )));
 
       // Pump to complete the Future
@@ -175,6 +191,138 @@ void main() {
       expect(appBar.preferredSize.height, expectedMinHeight);
 
       tester.view.resetPhysicalSize();
+    });
+
+    testWidgets(
+        'downloadedTerminals is true after TerminalsList is rendered for the first time',
+        (WidgetTester tester) async {
+      MockTerminalService terminalService = MockTerminalService();
+
+      // Initialize the provider
+      TerminalsProvider provider = TerminalsProvider();
+
+      // Assert initial state is false
+      expect(provider.downloadedTerminals, isFalse);
+
+      // Create a test widget wrapped with the provider
+      await tester.pumpWidget(
+        ChangeNotifierProvider<TerminalsProvider>.value(
+          value: provider,
+          child: MaterialApp(
+            home: TerminalsList(
+              terminalService: terminalService,
+            ),
+          ),
+        ),
+      );
+
+      // Optionally, wait for any async operations if your widget initiates any during build
+      await tester.pumpAndSettle();
+
+      // Assert that downloadedTerminals is now true
+      expect(provider.downloadedTerminals, isTrue);
+    });
+
+    testWidgets(
+        'Test that terminal documents are fetched from server when TerminalsList is rendered for the first time.',
+        (WidgetTester tester) async {
+      MockTerminalService terminalService = MockTerminalService();
+
+      // Initialize the provider
+      TerminalsProvider provider = TerminalsProvider();
+
+      // Assert initial state is false
+      expect(provider.downloadedTerminals, isFalse);
+
+      // Create a test widget wrapped with the provider
+      await tester.pumpWidget(
+        ChangeNotifierProvider<TerminalsProvider>.value(
+          value: provider,
+          child: MaterialApp(
+            home: TerminalsList(
+              terminalService: terminalService,
+            ),
+          ),
+        ),
+      );
+
+      // Optionally, wait for any async operations if your widget initiates any during build
+      await tester.pumpAndSettle();
+
+      // Assert that downloadedTerminals is now true
+      expect(provider.downloadedTerminals, isTrue);
+
+      // Verify that getTerminalsByGroups was called with fromCache: false
+      verify(terminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: false))
+          .called(1);
+    });
+
+    testWidgets(
+        'Test that terminal documents are fetched from cache when is the second time TerminalsList is rendered.',
+        (WidgetTester tester) async {
+      MockTerminalService terminalService = MockTerminalService();
+
+      // Initialize the provider
+      TerminalsProvider provider = TerminalsProvider();
+
+      // Assert initial state is false
+      expect(provider.downloadedTerminals, isFalse);
+
+      // Create a test widget wrapped with the provider
+      await tester.pumpWidget(
+        ChangeNotifierProvider<TerminalsProvider>.value(
+          value: provider,
+          child: MaterialApp(
+            home: TerminalsList(
+              terminalService: terminalService,
+            ),
+          ),
+        ),
+      );
+
+      // Optionally, wait for any async operations if your widget initiates any during build
+      await tester.pumpAndSettle();
+
+      // Build another widget to simulate exiting and re-entering the TerminalsList screen
+      await tester.pumpWidget(
+        ChangeNotifierProvider<TerminalsProvider>.value(
+          value: provider,
+          child: MaterialApp(
+            home: Container(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Rebuild the TerminalsList widget
+      await tester.pumpWidget(
+        ChangeNotifierProvider<TerminalsProvider>.value(
+          value: provider,
+          child: MaterialApp(
+            home: TerminalsList(
+              terminalService: terminalService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Assert that downloadedTerminals true after the second build
+      expect(provider.downloadedTerminals, isTrue);
+
+      // Verify that getTerminalsByGroups was called with fromCache: true
+      verify(terminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: true))
+          .called(1);
+
+      // Verify that there were no more calls to getTerminalsByGroups with fromCache: false
+      // after the first build. Max 1 call.
+      verify(terminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: false))
+          .called(1);
     });
   });
 
@@ -192,8 +340,10 @@ void main() {
 
       // Pump the TerminalsList widget with the mocked service
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: mockTerminalService),
-      ));
+          home: ChangeNotifierProvider(
+        create: (context) => TerminalsProvider(),
+        child: TerminalsList(terminalService: mockTerminalService),
+      )));
 
       // Complete the initial load
       await tester.pumpAndSettle();
@@ -228,7 +378,10 @@ void main() {
 
       // Build our app and trigger a frame.
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
+        home: ChangeNotifierProvider(
+          create: (context) => TerminalsProvider(),
+          child: TerminalsList(terminalService: terminalService),
+        ),
       ));
 
       // Pump to complete the Future
@@ -258,7 +411,10 @@ void main() {
           .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
+        home: ChangeNotifierProvider(
+          create: (context) => TerminalsProvider(),
+          child: TerminalsList(terminalService: terminalService),
+        ),
       ));
 
       // Pump to complete the Future
@@ -298,7 +454,10 @@ void main() {
               ]);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
+        home: ChangeNotifierProvider(
+          create: (context) => TerminalsProvider(),
+          child: TerminalsList(terminalService: terminalService),
+        ),
       ));
 
       // Pump to complete the Future
@@ -345,7 +504,10 @@ void main() {
                 ]);
 
         await tester.pumpWidget(MaterialApp(
-          home: TerminalsList(terminalService: terminalService),
+          home: ChangeNotifierProvider(
+            create: (context) => TerminalsProvider(),
+            child: TerminalsList(terminalService: terminalService),
+          ),
         ));
 
         // Pump to complete the Future
@@ -412,7 +574,10 @@ void main() {
       final terminalService = TerminalService(firestore: fakeFirestore);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
+        home: ChangeNotifierProvider(
+          create: (context) => TerminalsProvider(),
+          child: TerminalsList(terminalService: terminalService),
+        ),
       ));
 
       // Pump to complete the Future
@@ -481,7 +646,10 @@ void main() {
       final terminalService = TerminalService(firestore: fakeFirestore);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
+        home: ChangeNotifierProvider(
+          create: (context) => TerminalsProvider(),
+          child: TerminalsList(terminalService: terminalService),
+        ),
       ));
 
       // Pump to complete the Future
@@ -550,7 +718,10 @@ void main() {
       final terminalService = TerminalService(firestore: fakeFirestore);
 
       await tester.pumpWidget(MaterialApp(
-        home: TerminalsList(terminalService: terminalService),
+        home: ChangeNotifierProvider(
+          create: (context) => TerminalsProvider(),
+          child: TerminalsList(terminalService: terminalService),
+        ),
       ));
 
       // Pump to complete the Future
