@@ -47,15 +47,14 @@ class TerminalService {
         }
       }
 
-      var querySnapshot =
-          await collection.get(const GetOptions(source: Source.serverAndCache));
+      var querySnapshot = await collection.get();
       return querySnapshot.docs;
     }
     // Handle errors or exceptions that may occur during the fetch of documents
     catch (e) {
       debugPrint("Error loading terminal documents from Firestore: $e");
       var querySnapshot =
-          await collection.get(const GetOptions(source: Source.server));
+          await collection.get(const GetOptions(source: Source.serverAndCache));
       return querySnapshot.docs;
     }
   }
@@ -64,7 +63,7 @@ class TerminalService {
       {required List<String> groups, fromCache = true}) async {
     // Return all terminals if no groups are provided
     if (groups.isEmpty) {
-      return getTerminals();
+      return getTerminals(fromCache: fromCache);
     }
 
     return getTerminals(fromCache: fromCache).then((terminals) {

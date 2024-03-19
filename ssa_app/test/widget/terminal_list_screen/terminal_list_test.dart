@@ -17,7 +17,8 @@ void main() {
     testWidgets('Should show loading indicator when loading data',
         (WidgetTester tester) async {
       final terminalService = MockTerminalService();
-      when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+      when(terminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: anyNamed('fromCache')))
           .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
@@ -39,7 +40,8 @@ void main() {
         "Check number of rendered cards is equal to number of terminal documents.",
         (WidgetTester tester) async {
       final terminalService = MockTerminalService();
-      when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+      when(terminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: anyNamed('fromCache')))
           .thenAnswer((_) async => [
                 Terminal(
                   archiveDir: "",
@@ -153,7 +155,8 @@ void main() {
 
       final terminalService = MockTerminalService();
       // Mock the terminalService to return an empty list
-      when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+      when(terminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: anyNamed('fromCache')))
           .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
@@ -250,7 +253,8 @@ void main() {
         'Should display "No terminals found." if getTerminalsByGroups() returns an empty list.',
         (WidgetTester tester) async {
       final terminalService = MockTerminalService();
-      when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+      when(terminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: anyNamed('fromCache')))
           .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
@@ -271,7 +275,8 @@ void main() {
         'Fallback to flight_takeoff icon when terminalImageUrl is empty',
         (WidgetTester tester) async {
       final terminalService = MockTerminalService();
-      when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+      when(terminalService.getTerminalsByGroups(
+              groups: anyNamed('groups'), fromCache: anyNamed('fromCache')))
           .thenAnswer((_) async => [
                 Terminal(
                   archiveDir: "",
@@ -317,7 +322,8 @@ void main() {
       'Fallback to flight_takeoff icon when terminalImageUrl is null (attribute missing)',
       (WidgetTester tester) async {
         final terminalService = MockTerminalService();
-        when(terminalService.getTerminalsByGroups(groups: anyNamed('groups')))
+        when(terminalService.getTerminalsByGroups(
+                groups: anyNamed('groups'), fromCache: anyNamed('fromCache')))
             .thenAnswer((_) async => [
                   Terminal(
                     archiveDir: "",

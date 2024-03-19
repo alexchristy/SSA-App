@@ -42,7 +42,7 @@ class _TerminalsListState extends State<TerminalsList> {
   @override
   void initState() {
     super.initState();
-    _loadTerminals();
+    _loadTerminals(fromCache: false);
   }
 
   void _loadTerminals({fromCache = true}) async {
