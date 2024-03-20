@@ -16,12 +16,14 @@ import 'terminal_list_test.mocks.dart';
 @GenerateMocks([TerminalService])
 void main() {
   group("TerminalsList widget loading tests", () {
-    testWidgets('Should show loading indicator when loading data',
+    testWidgets('Should show loading indicator when loading data with delay',
         (WidgetTester tester) async {
       final terminalService = MockTerminalService();
+      // Setup the mock service to delay its response
       when(terminalService.getTerminalsByGroups(
               groups: anyNamed('groups'), fromCache: anyNamed('fromCache')))
-          .thenAnswer((_) async => []);
+          .thenAnswer(
+              (_) => Future.delayed(const Duration(seconds: 2), () => []));
 
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
@@ -30,15 +32,20 @@ void main() {
         ),
       ));
 
-      // Initially, you should find the CircularProgressIndicator
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      // After 'pumping' to simulate the passage of time and the completion of the Future, the indicator should disappear
-      await tester.pumpAndSettle();
+      // Initially, you may not find the CircularProgressIndicator because the delay hasn't triggered its display yet
       expect(find.byType(CircularProgressIndicator), findsNothing);
 
-      // Make sure that the filters are still displayed
-      expect(find.byType(TerminalFilterWidget), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 150)); // Start the Future
+
+      // Now the CircularProgressIndicator should be displayed
+      // because the delay has triggered its display
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      await tester.pump(const Duration(
+          seconds: 2)); // Match this with the delay in your mock response
+
+      // Now the CircularProgressIndicator should be gone and the data should be displayed
+      expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
     testWidgets(

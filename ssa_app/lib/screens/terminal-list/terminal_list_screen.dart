@@ -38,9 +38,10 @@ class TerminalsList extends StatefulWidget {
 class _TerminalsListState extends State<TerminalsList> {
   List<String> selectedGroupIds = [];
   List<Terminal> filteredTerminals = [];
-  bool isLoading = true;
+  bool isLoading = false;
   String? errorMessage;
   bool downloadedTerminals = false;
+  bool showLoadingIndicator = false;
 
   @override
   void initState() {
@@ -57,42 +58,49 @@ class _TerminalsListState extends State<TerminalsList> {
     }
   }
 
-  void _loadTerminals({fromCache = true}) async {
-    const int delayBeforeShowingIndicator = 50; // Delay in milliseconds
-    bool showIndicator = true;
-    debugPrint("Loading terminals with cache: $fromCache");
+  void _loadTerminals({bool fromCache = true}) async {
+    isLoading = true;
+    const int delayBeforeShowingIndicator = 100; // Delay in milliseconds
+    showLoadingIndicator =
+        false; // Reset this flag each time the method is called
 
     setState(() {
-      errorMessage = null;
+      errorMessage = null; // Reset error message at the start
     });
 
-    // Delay showing the loading indicator
-    Future.delayed(const Duration(milliseconds: delayBeforeShowingIndicator))
-        .then((_) {
-      if (showIndicator) {
-        setState(() {
-          isLoading = true;
-        });
+    // Start a timer that will set showLoadingIndicator to true after the specified delay
+    Future.delayed(const Duration(milliseconds: delayBeforeShowingIndicator),
+        () {
+      if (!mounted || !isLoading) {
+        return; // Check if the widget is still in the tree
       }
+      setState(() {
+        showLoadingIndicator = true;
+      });
     });
 
     try {
       List<Terminal> terminals = await widget.terminalService
           .getTerminalsByGroups(groups: selectedGroupIds, fromCache: fromCache);
-
-      // By the time terminals are fetched, decide not to show the indicator if loaded quickly
-      showIndicator = false;
-
+      if (!mounted) {
+        return; // Ensure the widget is still mounted before updating the state
+      }
       setState(() {
         filteredTerminals = terminals;
-        isLoading =
-            false; // Ensure isLoading is set to false in case it was set to true
+        isLoading = false;
+        showLoadingIndicator =
+            false; // Ensure the loading indicator is hidden after terminals are loaded
       });
     } catch (e) {
+      if (!mounted) {
+        return; // Check if the widget is still in the tree before setting state
+      }
       setState(() {
         errorMessage =
             "Failed to load terminals. Check your connection and try again.";
         isLoading = false;
+        showLoadingIndicator =
+            false; // Ensure the loading indicator is hidden on error as well
       });
     }
   }
@@ -119,7 +127,7 @@ class _TerminalsListState extends State<TerminalsList> {
             topFilterPadding: topFilterPadding,
           ),
           // Overlay the loading indicator when loading
-          if (isLoading && errorMessage == null)
+          if (showLoadingIndicator)
             const Positioned.fill(
               child: Center(
                 child: CircularProgressIndicator(

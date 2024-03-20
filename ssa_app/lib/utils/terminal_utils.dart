@@ -65,6 +65,9 @@ class TerminalService {
 
   Future<List<Terminal>> getTerminalsByGroups(
       {required List<String> groups, fromCache = true}) async {
+    // Testing delay
+    // await Future.delayed(const Duration(seconds: 2));
+
     // Return all terminals if no groups are provided
     if (groups.isEmpty) {
       return getTerminals(fromCache: fromCache);
