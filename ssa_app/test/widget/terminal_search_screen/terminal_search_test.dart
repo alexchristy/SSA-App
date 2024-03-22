@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:ssa_app/screens/terminal-search/terminal_search_screen.dart';
+import 'package:ssa_app/utils/terminal_utils.dart';
 
+import 'terminal_search_test.mocks.dart';
+
+@GenerateMocks([TerminalService])
 void main() {
   group("Loading Terminal search screen tests.", () {
     testWidgets("Ensure there is a X symbol to exit screen (top left)",
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: TerminalSearchScreen()));
+      final terminalService = MockTerminalService();
+      await tester.pumpWidget(MaterialApp(
+          home: TerminalSearchScreen(terminalService: terminalService)));
       await tester.pumpAndSettle();
       expect(find.byIcon(Icons.close), findsOneWidget);
     });
@@ -16,7 +23,7 @@ void main() {
     testWidgets('Search bar is full length on initial loading',
         (WidgetTester tester) async {
       // Define the MaterialApp to set a context with MediaQuery
-      await tester.pumpWidget(const MaterialApp(home: TerminalSearchScreen()));
+      await tester.pumpWidget(MaterialApp(home: TerminalSearchScreen()));
 
       // Find the TextField widget
       final Finder textFieldFinder = find.byType(TextField);
@@ -45,11 +52,12 @@ void main() {
     testWidgets('Cancel button appears when search bar is tapped',
         (WidgetTester tester) async {
       // Pump the TerminalSearchScreen widget into the widget tree
-      await tester.pumpWidget(const MaterialApp(home: TerminalSearchScreen()));
+      await tester.pumpWidget(MaterialApp(home: TerminalSearchScreen()));
 
       // Find the TextField by looking for a widget with the 'Search' labelText
       final Finder searchField = find.byWidgetPredicate((Widget widget) =>
-          widget is TextField && widget.decoration?.labelText == 'Search');
+          widget is TextField &&
+          widget.decoration?.labelText == 'Terminal Search');
 
       // Ensure the TextField is found
       expect(searchField, findsOneWidget);

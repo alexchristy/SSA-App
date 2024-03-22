@@ -96,7 +96,9 @@ void main() {
       expect(terminals.length, 1);
       expect(terminal1Data, terminals[0].toMap());
     });
+  });
 
+  group("Terminal getTerminalsByGroups tests.", () {
     test(
         "Test that getTerminalsByGroups works with one group filter and returns the correct terminal.",
         () async {
@@ -329,6 +331,103 @@ void main() {
       for (int i = 0; i < terminals.length; i++) {
         expect(terminals[i].toMap(), expectedData[i]);
       }
+    });
+  });
+
+  group("Terminal getTerminalsByName tests", () {
+    test(
+        "Test that getTerminalsByName works with one name filter and returns the correct terminal.",
+        () async {
+      final FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
+
+      final Map<String, dynamic> terminal1Data = {
+        "archiveDir": "",
+        "group": "Group 1",
+        "last30DayUpdateTimestamp": Timestamp.now(),
+        "last72HourUpdateTimestamp": Timestamp.now(),
+        "lastCheckTimestamp": Timestamp.now(),
+        "lastRollcallUpdateTimestamp": Timestamp.now(),
+        "link": "https://example.com/terminal1",
+        "location": "Location 1",
+        "name": "Terminal 1",
+        "pagePosition": 1,
+        "pdf30DayHash": "pdf30DayHash",
+        "pdf72HourHash": "pdf72HourHash",
+        "pdfRollcallHash": "pdfRollcallHash",
+        "terminalImageUrl": "",
+        "timezone": "America/New_York",
+      };
+
+      final Map<String, dynamic> terminal2Data = {
+        "archiveDir": "",
+        "group": "Group 2",
+        "last30DayUpdateTimestamp": Timestamp.now(),
+        "last72HourUpdateTimestamp": Timestamp.now(),
+        "lastCheckTimestamp": Timestamp.now(),
+        "lastRollcallUpdateTimestamp": Timestamp.now(),
+        "link": "https://example.com/terminal2",
+        "location": "Location 2",
+        "name": "Terminal 2",
+        "pagePosition": 2,
+        "pdf30DayHash": "pdf30DayHash",
+        "pdf72HourHash": "pdf72HourHash",
+        "pdfRollcallHash": "pdfRollcallHash",
+        "terminalImageUrl": "",
+        "timezone": "America/New_York",
+      };
+
+      final Map<String, dynamic> terminal3Data = {
+        "archiveDir": "",
+        "group": "Group 3",
+        "last30DayUpdateTimestamp": Timestamp.now(),
+        "last72HourUpdateTimestamp": Timestamp.now(),
+        "lastCheckTimestamp": Timestamp.now(),
+        "lastRollcallUpdateTimestamp": Timestamp.now(),
+        "link": "https://example.com/terminal3",
+        "location": "Location 3",
+        "name": "Terminal 3",
+        "pagePosition": 3,
+        "pdf30DayHash": "pdf30DayHash",
+        "pdf72HourHash": "pdf72HourHash",
+        "pdfRollcallHash": "pdfRollcallHash",
+        "terminalImageUrl": "",
+        "timezone": "America/New_York",
+      };
+
+      // Add all terminal documents to the fake firestore
+      final docRef1 =
+          await firestore.collection("Terminals").add(terminal1Data);
+      final docRef2 =
+          await firestore.collection("Terminals").add(terminal2Data);
+      final docRef3 =
+          await firestore.collection("Terminals").add(terminal3Data);
+
+      List<Terminal> terminals = [];
+
+      // Get the terminal documents from the fake firestore
+      Terminal terminal1 = await TerminalService(firestore: firestore)
+          .getTerminalById(docRef1.id);
+
+      // Check that it is same as terminal1Data
+      expect(terminal1.toMap(), terminal1Data);
+      terminals.add(terminal1);
+
+      Terminal terminal2 = await TerminalService(firestore: firestore)
+          .getTerminalById(docRef2.id);
+
+      // Check that it is same as terminal2Data
+      expect(terminal2.toMap(), terminal2Data);
+      terminals.add(terminal2);
+
+      Terminal terminal3 = await TerminalService(firestore: firestore)
+          .getTerminalById(docRef3.id);
+
+      // Check that it is same as terminal3Data
+      expect(terminal3.toMap(), terminal3Data);
+      terminals.add(terminal3);
+
+      // Check we got all the terminals
+      expect(terminals.length, 3);
     });
   });
 }

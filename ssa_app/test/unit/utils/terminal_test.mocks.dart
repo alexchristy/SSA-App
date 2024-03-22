@@ -97,4 +97,19 @@ class MockTerminalService extends _i1.Mock implements _i3.TerminalService {
         ),
         returnValue: _i4.Future<List<_i2.Terminal>>.value(<_i2.Terminal>[]),
       ) as _i4.Future<List<_i2.Terminal>>);
+
+  @override
+  _i4.Future<_i2.Terminal> getTerminalById(String? id) => (super.noSuchMethod(
+        Invocation.method(
+          #getTerminalById,
+          [id],
+        ),
+        returnValue: _i4.Future<_i2.Terminal>.value(_FakeTerminal_0(
+          this,
+          Invocation.method(
+            #getTerminalById,
+            [id],
+          ),
+        )),
+      ) as _i4.Future<_i2.Terminal>);
 }

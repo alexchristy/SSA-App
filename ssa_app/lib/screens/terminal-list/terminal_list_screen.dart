@@ -192,7 +192,7 @@ class _TerminalsListState extends State<TerminalsList> {
         preferredSize: Size.fromHeight(baseAppBarHeight),
         child: AppBar(
           backgroundColor: AppColors.ghostWhite,
-          title: const Text("Terminals", style: TextStyle(fontSize: 32.0)),
+          title: const Text("Terminals", style: TextStyle(fontSize: 24.0)),
           leading: Padding(
             // Apply left padding to the leading icon
             padding: const EdgeInsets.only(left: 8.0),
@@ -208,7 +208,7 @@ class _TerminalsListState extends State<TerminalsList> {
                 icon: const Icon(Icons.search),
                 onPressed: () {
                   Navigator.of(context).push(SlideUpTransition(
-                      builder: (context) => const TerminalSearchScreen()));
+                      builder: (context) => TerminalSearchScreen()));
                 },
               ),
             ),

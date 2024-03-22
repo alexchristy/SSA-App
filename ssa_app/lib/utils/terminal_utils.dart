@@ -79,4 +79,10 @@ class TerminalService {
           .toList();
     });
   }
+
+  Future<Terminal> getTerminalById(String id) async {
+    // Document id is the terminal name
+    var doc = await _firestore.collection('Terminals').doc(id).get();
+    return Terminal.fromDocumentSnapshot(doc);
+  }
 }
