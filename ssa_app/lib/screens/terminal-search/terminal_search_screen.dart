@@ -5,7 +5,6 @@ import 'package:ssa_app/screens/terminal-search/search_metadata.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:ssa_app/screens/terminal-search/terminal_search_result.dart';
 import 'package:ssa_app/screens/terminal-search/hits_page.dart';
-import 'package:ssa_app/models/terminal.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
 
 class TerminalSearchScreen extends StatefulWidget {
@@ -104,23 +103,12 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       appBar: buildAppBar(context),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           searchBarSection(), // Padding is applied within this method except for the Divider
-          StreamBuilder<SearchMetadata>(
-            stream: _searchMetadata,
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const SizedBox.shrink();
-              }
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('${snapshot.data!.nbHits} hits'),
-              );
-            },
-          ),
           Expanded(
             child: _hits(context),
           )
@@ -142,7 +130,8 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     return PreferredSize(
         preferredSize: Size.fromHeight(baseAppBarHeight),
         child: AppBar(
-          backgroundColor: AppColors.ghostWhite,
+          surfaceTintColor: AppColors.white,
+          backgroundColor: AppColors.white,
           title: const Text(
             "Search",
             style: TextStyle(fontSize: 24.0),
@@ -170,23 +159,7 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
               horizontal: 16.0,
               vertical: 8.0), // Apply horizontal padding to the search bar
           child: searchBarAndCancelBtn(),
-        ),
-        Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: StreamBuilder<SearchMetadata>(
-              stream: _searchMetadata,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Text('Hits: ${snapshot.data!.nbHits}');
-                } else {
-                  return const CircularProgressIndicator();
-                }
-              },
-            )),
-        Divider(
-          color: Colors.grey.shade400,
-          thickness: 1,
-        ) // Divider expands to the edge
+        )
       ],
     );
   }
@@ -200,18 +173,25 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
             focusNode: _focusNode,
             controller: _searchTextController,
             decoration: const InputDecoration(
+              fillColor: AppColors.white,
+              filled: true,
               labelText: 'Terminal Search',
               labelStyle: TextStyle(
-                color: Colors.black,
+                fontSize: 18.0,
+                overflow: TextOverflow.ellipsis,
               ),
               border: OutlineInputBorder(),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12.0)),
                   borderSide: BorderSide(
-                    color: AppColors.greenBlue,
-                    width: 1.0,
+                    color: Colors.grey,
+                    width: 2.0,
                   )),
               hintText: 'Name, location, or command',
+              hintStyle: TextStyle(
+                fontSize: 18.0,
+                overflow: TextOverflow.ellipsis,
+              ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(12.0)),
                 borderSide: BorderSide(
@@ -241,7 +221,7 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
               },
               child: const Text('Cancel',
                   style:
-                      TextStyle(fontSize: 16, color: AppColors.prussianBlue)),
+                      TextStyle(fontSize: 16.0, color: AppColors.prussianBlue)),
             ),
           ),
         ),
@@ -254,14 +234,37 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
           pagingController: _pagingController,
           builderDelegate: PagedChildBuilderDelegate<TerminalSearchResult>(
               noItemsFoundIndicatorBuilder: (_) => const Center(
-                    child: Text('No results found'),
-                  ),
-              itemBuilder: (_, item, __) => Container(
-                    color: Colors.white,
-                    height: 80,
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                      children: [Expanded(child: Text(item.name))],
+                    child: Text(
+                      'No results found.',
+                      style: TextStyle(fontSize: 18.0),
                     ),
-                  )));
+                  ),
+              itemBuilder: (_, item, __) => terminalResult(context, item)));
+
+  Widget terminalResult(BuildContext context, TerminalSearchResult terminal) {
+    return Column(
+      children: [
+        Container(
+          color: AppColors.white,
+          height: 100,
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Expanded(
+                  child: Text(
+                terminal.name,
+                style: const TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    overflow: TextOverflow.ellipsis),
+              ))
+            ],
+          ),
+        ),
+        Divider(
+          color: Colors.grey.shade400,
+        )
+      ],
+    );
+  }
 }

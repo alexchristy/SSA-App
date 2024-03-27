@@ -10,7 +10,7 @@ import 'package:ssa_app/models/filter.dart';
 import 'package:ssa_app/screens/terminal-list/list_filters_widget.dart';
 import 'package:ssa_app/screens/terminal-search/terminal_search_screen.dart';
 import 'package:ssa_app/transitions/slide_up_transition.dart';
-import 'package:ssa_app/providers/terminals_provider.dart';
+import 'package:ssa_app/providers/global_provider.dart';
 import 'package:provider/provider.dart';
 
 // Terminal Location Filters
@@ -46,13 +46,13 @@ class _TerminalsListState extends State<TerminalsList> {
   @override
   void initState() {
     super.initState();
-    downloadedTerminals = Provider.of<TerminalsProvider>(context, listen: false)
-        .downloadedTerminals;
+    downloadedTerminals =
+        Provider.of<GlobalProvider>(context, listen: false).downloadedTerminals;
 
     if (!downloadedTerminals) {
       _loadTerminals(fromCache: false);
-      Provider.of<TerminalsProvider>(context, listen: false)
-          .downloadedTerminals = true;
+      Provider.of<GlobalProvider>(context, listen: false).downloadedTerminals =
+          true;
     } else {
       _loadTerminals(fromCache: true);
     }

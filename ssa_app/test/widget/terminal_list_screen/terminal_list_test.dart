@@ -9,7 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ssa_app/screens/terminal-list/list_filters_widget.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:provider/provider.dart';
-import 'package:ssa_app/providers/terminals_provider.dart';
+import 'package:ssa_app/providers/global_provider.dart';
 
 import 'terminal_list_test.mocks.dart';
 
@@ -27,7 +27,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
-          create: (context) => TerminalsProvider(),
+          create: (context) => GlobalProvider(),
           child: TerminalsList(terminalService: terminalService),
         ),
       ));
@@ -93,7 +93,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
-          create: (context) => TerminalsProvider(),
+          create: (context) => GlobalProvider(),
           child: TerminalsList(terminalService: terminalService),
         ),
       ));
@@ -121,7 +121,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
-          create: (context) => TerminalsProvider(),
+          create: (context) => GlobalProvider(),
           child: TerminalsList(terminalService: terminalService),
         ),
       ));
@@ -141,7 +141,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
           home: ChangeNotifierProvider(
-        create: (context) => TerminalsProvider(),
+        create: (context) => GlobalProvider(),
         child: TerminalsList(terminalService: terminalService),
       )));
 
@@ -160,7 +160,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
           home: ChangeNotifierProvider(
-        create: (context) => TerminalsProvider(),
+        create: (context) => GlobalProvider(),
         child: TerminalsList(terminalService: terminalService),
       )));
 
@@ -183,7 +183,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
           home: ChangeNotifierProvider(
-        create: (context) => TerminalsProvider(),
+        create: (context) => GlobalProvider(),
         child: TerminalsList(terminalService: terminalService),
       )));
 
@@ -206,14 +206,14 @@ void main() {
       MockTerminalService terminalService = MockTerminalService();
 
       // Initialize the provider
-      TerminalsProvider provider = TerminalsProvider();
+      GlobalProvider provider = GlobalProvider();
 
       // Assert initial state is false
       expect(provider.downloadedTerminals, isFalse);
 
       // Create a test widget wrapped with the provider
       await tester.pumpWidget(
-        ChangeNotifierProvider<TerminalsProvider>.value(
+        ChangeNotifierProvider<GlobalProvider>.value(
           value: provider,
           child: MaterialApp(
             home: TerminalsList(
@@ -236,14 +236,14 @@ void main() {
       MockTerminalService terminalService = MockTerminalService();
 
       // Initialize the provider
-      TerminalsProvider provider = TerminalsProvider();
+      GlobalProvider provider = GlobalProvider();
 
       // Assert initial state is false
       expect(provider.downloadedTerminals, isFalse);
 
       // Create a test widget wrapped with the provider
       await tester.pumpWidget(
-        ChangeNotifierProvider<TerminalsProvider>.value(
+        ChangeNotifierProvider<GlobalProvider>.value(
           value: provider,
           child: MaterialApp(
             home: TerminalsList(
@@ -271,14 +271,14 @@ void main() {
       MockTerminalService terminalService = MockTerminalService();
 
       // Initialize the provider
-      TerminalsProvider provider = TerminalsProvider();
+      GlobalProvider provider = GlobalProvider();
 
       // Assert initial state is false
       expect(provider.downloadedTerminals, isFalse);
 
       // Create a test widget wrapped with the provider
       await tester.pumpWidget(
-        ChangeNotifierProvider<TerminalsProvider>.value(
+        ChangeNotifierProvider<GlobalProvider>.value(
           value: provider,
           child: MaterialApp(
             home: TerminalsList(
@@ -293,7 +293,7 @@ void main() {
 
       // Build another widget to simulate exiting and re-entering the TerminalsList screen
       await tester.pumpWidget(
-        ChangeNotifierProvider<TerminalsProvider>.value(
+        ChangeNotifierProvider<GlobalProvider>.value(
           value: provider,
           child: MaterialApp(
             home: Container(),
@@ -305,7 +305,7 @@ void main() {
 
       // Rebuild the TerminalsList widget
       await tester.pumpWidget(
-        ChangeNotifierProvider<TerminalsProvider>.value(
+        ChangeNotifierProvider<GlobalProvider>.value(
           value: provider,
           child: MaterialApp(
             home: TerminalsList(
@@ -348,7 +348,7 @@ void main() {
       // Pump the TerminalsList widget with the mocked service
       await tester.pumpWidget(MaterialApp(
           home: ChangeNotifierProvider(
-        create: (context) => TerminalsProvider(),
+        create: (context) => GlobalProvider(),
         child: TerminalsList(terminalService: mockTerminalService),
       )));
 
@@ -386,7 +386,7 @@ void main() {
       // Build our app and trigger a frame.
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
-          create: (context) => TerminalsProvider(),
+          create: (context) => GlobalProvider(),
           child: TerminalsList(terminalService: terminalService),
         ),
       ));
@@ -419,7 +419,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
-          create: (context) => TerminalsProvider(),
+          create: (context) => GlobalProvider(),
           child: TerminalsList(terminalService: terminalService),
         ),
       ));
@@ -462,7 +462,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
-          create: (context) => TerminalsProvider(),
+          create: (context) => GlobalProvider(),
           child: TerminalsList(terminalService: terminalService),
         ),
       ));
@@ -512,7 +512,7 @@ void main() {
 
         await tester.pumpWidget(MaterialApp(
           home: ChangeNotifierProvider(
-            create: (context) => TerminalsProvider(),
+            create: (context) => GlobalProvider(),
             child: TerminalsList(terminalService: terminalService),
           ),
         ));
@@ -582,7 +582,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
-          create: (context) => TerminalsProvider(),
+          create: (context) => GlobalProvider(),
           child: TerminalsList(terminalService: terminalService),
         ),
       ));
@@ -654,7 +654,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
-          create: (context) => TerminalsProvider(),
+          create: (context) => GlobalProvider(),
           child: TerminalsList(terminalService: terminalService),
         ),
       ));
@@ -726,7 +726,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: ChangeNotifierProvider(
-          create: (context) => TerminalsProvider(),
+          create: (context) => GlobalProvider(),
           child: TerminalsList(terminalService: terminalService),
         ),
       ));
