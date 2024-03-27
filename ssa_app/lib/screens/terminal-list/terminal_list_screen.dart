@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:ssa_app/providers/terminals_provider.dart';
 import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart';
 import 'package:ssa_app/utils/image_utils.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
@@ -108,11 +109,27 @@ class _TerminalsListState extends State<TerminalsList> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double tileWidth = getTileWidth(screenWidth);
+    final double shortestSide = MediaQuery.of(context).size.shortestSide;
+
+    Provider.of<TerminalsProvider>(context, listen: false).terminalCardWidth =
+        getTileWidth(screenWidth);
+
+    Provider.of<TerminalsProvider>(context, listen: false).terminalCardHeight =
+        getTileHeight(shortestSide);
+
+    Provider.of<TerminalsProvider>(context, listen: false).terminalCardPadding =
+        ((screenWidth -
+                    Provider.of<TerminalsProvider>(context, listen: false)
+                        .terminalCardWidth) /
+                2)
+            .floorToDouble();
+
+    final double tileWidth =
+        Provider.of<TerminalsProvider>(context).terminalCardWidth;
     final double tileHeight =
-        getTileHeight(MediaQuery.of(context).size.shortestSide);
+        Provider.of<TerminalsProvider>(context).terminalCardHeight;
     final double listEdgePadding =
-        ((screenWidth - tileWidth) / 2).floorToDouble();
+        Provider.of<TerminalsProvider>(context).terminalCardPadding;
     final double topFilterPadding = (0.8 * listEdgePadding).floorToDouble();
 
     return Scaffold(
@@ -120,7 +137,6 @@ class _TerminalsListState extends State<TerminalsList> {
       body: Stack(
         children: [
           buildList(
-            screenWidth: screenWidth,
             tileWidth: tileWidth,
             tileHeight: tileHeight,
             listEdgePadding: listEdgePadding,
@@ -220,8 +236,7 @@ class _TerminalsListState extends State<TerminalsList> {
   }
 
   Widget buildList(
-      {double screenWidth = 0.0,
-      double tileWidth = 0.0,
+      {double tileWidth = 0.0,
       double tileHeight = 0.0,
       double listEdgePadding = 0.0,
       double topFilterPadding = 0.0}) {
@@ -235,7 +250,6 @@ class _TerminalsListState extends State<TerminalsList> {
                 topFilterPadding: topFilterPadding,
                 listEdgePadding: listEdgePadding),
             buildTerminalList(
-                screenWidth: screenWidth,
                 tileWidth: tileWidth,
                 tileHeight: tileHeight,
                 listEdgePadding: listEdgePadding),
@@ -264,8 +278,7 @@ class _TerminalsListState extends State<TerminalsList> {
   }
 
   Widget buildTerminalList(
-      {double screenWidth = 0.0,
-      double tileWidth = 0.0,
+      {double tileWidth = 0.0,
       double tileHeight = 0.0,
       double listEdgePadding = 0.0}) {
     if (isLoading) {
@@ -277,7 +290,6 @@ class _TerminalsListState extends State<TerminalsList> {
             final terminal = filteredTerminals[index];
             return TerminalListItem(
               terminal: terminal,
-              screenWidth: screenWidth,
               tileWidth: tileWidth,
               tileHeight: tileHeight,
               egdePadding: listEdgePadding,
@@ -306,13 +318,12 @@ class _TerminalsListState extends State<TerminalsList> {
 }
 
 class TerminalListItem extends StatefulWidget {
-  final double screenWidth, tileWidth, tileHeight, egdePadding;
+  final double tileWidth, tileHeight, egdePadding;
   final Terminal terminal;
 
   const TerminalListItem({
     super.key,
     required this.terminal,
-    required this.screenWidth,
     required this.tileWidth,
     required this.tileHeight,
     required this.egdePadding,
