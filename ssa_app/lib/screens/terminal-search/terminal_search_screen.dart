@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ssa_app/constants/app_colors.dart';
 import 'package:algolia_helper_flutter/algolia_helper_flutter.dart';
@@ -9,8 +10,12 @@ import 'package:ssa_app/utils/terminal_utils.dart';
 
 class TerminalSearchScreen extends StatefulWidget {
   final TerminalService terminalService;
+  final double terminalCardHeight;
 
-  TerminalSearchScreen({super.key, TerminalService? terminalService})
+  TerminalSearchScreen(
+      {super.key,
+      TerminalService? terminalService,
+      required this.terminalCardHeight})
       : terminalService = terminalService ?? TerminalService();
 
   @override
@@ -106,12 +111,9 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
       backgroundColor: AppColors.white,
       appBar: buildAppBar(context),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           searchBarSection(), // Padding is applied within this method except for the Divider
-          Expanded(
-            child: _hits(context),
-          )
+          Expanded(child: _hits(context)),
         ],
       ),
     );
@@ -242,29 +244,65 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
               itemBuilder: (_, item, __) => terminalResult(context, item)));
 
   Widget terminalResult(BuildContext context, TerminalSearchResult terminal) {
+    return Column(children: [
+      SizedBox(
+          height: getTerminalResultHeight(),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: stackedTerminalInfo(terminal),
+            ),
+          )),
+      const Divider(),
+    ]);
+  }
+
+  Widget stackedTerminalInfo(TerminalSearchResult terminal) {
+    final resultHeight = getTerminalResultHeight();
+    final textSeperatorHeight = (resultHeight * 0.08).ceilToDouble();
+
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          color: AppColors.white,
-          height: 100,
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                  child: Text(
-                terminal.name,
-                style: const TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                    overflow: TextOverflow.ellipsis),
-              ))
-            ],
-          ),
-        ),
-        Divider(
-          color: Colors.grey.shade400,
-        )
+        nameText(terminal.name),
+        SizedBox(height: textSeperatorHeight),
+        locationText(terminal.location),
       ],
     );
+  }
+
+  Widget nameText(String name) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        name,
+        style: const TextStyle(
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+  }
+
+  Widget locationText(String location) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        location,
+        style: TextStyle(
+          fontSize: 16.0,
+          fontWeight: FontWeight.w400,
+          overflow: TextOverflow.ellipsis,
+          color: Colors.grey.shade600,
+        ),
+      ),
+    );
+  }
+
+  double getTerminalResultHeight() {
+    // 80% of the terminal card height rounded up to the nearest whole number
+    return (widget.terminalCardHeight * 0.8).ceilToDouble();
   }
 }

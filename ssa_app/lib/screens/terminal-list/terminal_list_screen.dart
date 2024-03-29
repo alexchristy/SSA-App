@@ -223,8 +223,7 @@ class _TerminalsListState extends State<TerminalsList> {
               child: IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () {
-                  Navigator.of(context).push(SlideUpTransition(
-                      builder: (context) => TerminalSearchScreen()));
+                  navigateToSearchScreen(context);
                 },
               ),
             ),
@@ -233,6 +232,15 @@ class _TerminalsListState extends State<TerminalsList> {
           iconTheme: appBarTheme.iconTheme,
           actionsIconTheme: appBarTheme.actionsIconTheme,
         ));
+  }
+
+  void navigateToSearchScreen(BuildContext context) {
+    final cardHeight = Provider.of<TerminalsProvider>(context, listen: false)
+        .terminalCardHeight;
+    Navigator.of(context).push(SlideUpTransition(
+        builder: (context) => TerminalSearchScreen(
+              terminalCardHeight: cardHeight,
+            )));
   }
 
   Widget buildList(
