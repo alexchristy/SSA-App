@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ssa_app/constants/app_colors.dart';
 import 'package:algolia_helper_flutter/algolia_helper_flutter.dart';
@@ -7,6 +6,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:ssa_app/screens/terminal-search/terminal_search_result.dart';
 import 'package:ssa_app/screens/terminal-search/hits_page.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
+import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart';
 
 class TerminalSearchScreen extends StatefulWidget {
   final TerminalService terminalService;
@@ -49,17 +49,20 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
   void initState() {
     super.initState();
 
-    _searchTextController
-        .addListener(() => _terminalSearcher.query(_searchTextController.text));
+    // Combine both listeners into a single listener for cleaner code
+    _searchTextController.addListener(() {
+      final searchText = _searchTextController.text;
+      // Assuming `_terminalSearcher.query()` is not needed anymore as `applyState` seems to handle the update.
+      // If it's still needed, call it here.
+      // _terminalSearcher.query(searchText);
+      _terminalSearcher.applyState(
+        (state) => state.copyWith(query: searchText, page: 0),
+      );
 
-    _searchTextController.addListener(
-      () => _terminalSearcher.applyState(
-        (state) => state.copyWith(
-          query: _searchTextController.text,
-          page: 0,
-        ),
-      ),
-    );
+      setState(() {});
+    });
+
+    // Listener for handling pagination
     _searchPage.listen((page) {
       if (page.pageKey == 0) {
         _pagingController.refresh();
@@ -72,25 +75,20 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
               page: pageKey,
             )));
 
+    // Setup for animations based on the focus state of the search bar
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
-
     _opacityAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
-
     _focusNode.addListener(() {
       if (_focusNode.hasFocus && !_showCancelButton) {
         _animationController.forward();
-        setState(() {
-          _showCancelButton = true;
-        });
+        setState(() => _showCancelButton = true);
       } else if (!_focusNode.hasFocus && _showCancelButton) {
         _animationController.reverse();
-        setState(() {
-          _showCancelButton = false;
-        });
+        setState(() => _showCancelButton = false);
       }
     });
   }
@@ -112,9 +110,37 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
       appBar: buildAppBar(context),
       body: Column(
         children: [
-          searchBarSection(), // Padding is applied within this method except for the Divider
-          Expanded(child: _hits(context)),
+          searchBarSection(), // This remains non-scrollable at the top
+          Expanded(
+            // This makes everything inside it scrollable
+            child: CustomScrollView(
+              slivers: [
+                if (_searchTextController
+                    .text.isEmpty) // Conditionally include this
+                  SliverToBoxAdapter(
+                    child:
+                        suggestedText(), // Non-scrollable text becomes part of the scrollable area
+                  ),
+                _hits(
+                    context), // This method should return a Sliver widget to be compatible
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget suggestedText() {
+    return const Padding(
+      padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0, right: 16.0),
+      child: Text(
+        'SUGGESTED TERMINALS',
+        style: TextStyle(
+          fontSize: 16.0,
+          fontWeight: FontWeight.w400,
+          color: AppColors.prussianBlue,
+        ),
       ),
     );
   }
@@ -231,30 +257,38 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     );
   }
 
-  Widget _hits(BuildContext context) =>
-      PagedListView<int, TerminalSearchResult>(
-          pagingController: _pagingController,
-          builderDelegate: PagedChildBuilderDelegate<TerminalSearchResult>(
-              noItemsFoundIndicatorBuilder: (_) => const Center(
-                    child: Text(
-                      'No results found.',
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                  ),
-              itemBuilder: (_, item, __) => terminalResult(context, item)));
+  Widget _hits(BuildContext context) {
+    return PagedSliverList<int, TerminalSearchResult>.separated(
+      pagingController: _pagingController,
+      builderDelegate: PagedChildBuilderDelegate<TerminalSearchResult>(
+        itemBuilder: (context, item, index) => terminalResult(context, item),
+        noItemsFoundIndicatorBuilder: (_) => const Center(
+          child: Text(
+            'No results found.',
+            style: TextStyle(fontSize: 20.0),
+          ),
+        ),
+      ),
+      separatorBuilder: (context, index) =>
+          const Divider(), // Add dividers between items
+    );
+  }
 
   Widget terminalResult(BuildContext context, TerminalSearchResult terminal) {
-    return Column(children: [
-      SizedBox(
-          height: getTerminalResultHeight(),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: stackedTerminalInfo(terminal),
-            ),
-          )),
-      const Divider(),
-    ]);
+    return InkWell(
+        onTap: () {
+          // TODO: Create map of terminal name to terminal data maps
+        },
+        child: Column(children: [
+          SizedBox(
+              height: getTerminalResultHeight(),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  child: stackedTerminalInfo(terminal),
+                ),
+              )),
+        ]));
   }
 
   Widget stackedTerminalInfo(TerminalSearchResult terminal) {
