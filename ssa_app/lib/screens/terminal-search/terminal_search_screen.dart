@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:ssa_app/constants/app_colors.dart';
-import 'package:algolia_helper_flutter/algolia_helper_flutter.dart';
-import 'package:ssa_app/screens/terminal-search/search_metadata.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:ssa_app/screens/terminal-search/terminal_search_result.dart';
-import 'package:ssa_app/screens/terminal-search/hits_page.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
-import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart';
+import 'package:flutter_mimir/flutter_mimir.dart';
 
 class TerminalSearchScreen extends StatefulWidget {
   final TerminalService terminalService;
   final double terminalCardHeight;
 
-  TerminalSearchScreen(
-      {super.key,
-      TerminalService? terminalService,
-      required this.terminalCardHeight})
-      : terminalService = terminalService ?? TerminalService();
+  TerminalSearchScreen({
+    super.key,
+    TerminalService? terminalService,
+    required this.terminalCardHeight,
+  }) : terminalService = terminalService ?? TerminalService();
 
   @override
   TerminalSearchScreenState createState() => TerminalSearchScreenState();
@@ -29,59 +25,31 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
   late AnimationController _animationController;
   late Animation<double> _opacityAnimation;
   bool _showCancelButton = false;
-
-  // Algolia Search instance
-  final _terminalSearcher = HitsSearcher(
-      applicationID: 'TO5YM9V5TU',
-      apiKey: 'be3d7f96977a9780ffc8cf2c0ea9250d',
-      indexName: 'Terminals');
-
-  Stream<SearchMetadata> get _searchMetadata =>
-      _terminalSearcher.responses.map(SearchMetadata.fromResponse);
-
-  final PagingController<int, TerminalSearchResult> _pagingController =
+  late MimirIndex _mimirIndex;
+  bool _isMimirInitialized = false;
+  final PagingController<int, Map<String, dynamic>> _pagingController =
       PagingController(firstPageKey: 0);
-
-  Stream<HitsPage> get _searchPage =>
-      _terminalSearcher.responses.map(HitsPage.fromResponse);
 
   @override
   void initState() {
     super.initState();
-
-    // Combine both listeners into a single listener for cleaner code
-    _searchTextController.addListener(() {
-      final searchText = _searchTextController.text;
-      // Assuming `_terminalSearcher.query()` is not needed anymore as `applyState` seems to handle the update.
-      // If it's still needed, call it here.
-      // _terminalSearcher.query(searchText);
-      _terminalSearcher.applyState(
-        (state) => state.copyWith(query: searchText, page: 0),
-      );
-
-      setState(() {});
+    initializeMimir().then((index) {
+      setState(() {
+        _mimirIndex = index;
+        _isMimirInitialized = true;
+      });
     });
 
-    // Listener for handling pagination
-    _searchPage.listen((page) {
-      if (page.pageKey == 0) {
-        _pagingController.refresh();
-      }
-      _pagingController.appendPage(page.items, page.nextPageKey);
-    }).onError((error) => _pagingController.error = error);
+    _searchTextController.addListener(_searchTerminals);
+    _pagingController.addPageRequestListener(_loadMoreTerminals);
 
-    _pagingController.addPageRequestListener(
-        (pageKey) => _terminalSearcher.applyState((state) => state.copyWith(
-              page: pageKey,
-            )));
-
-    // Setup for animations based on the focus state of the search bar
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
     _opacityAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+
     _focusNode.addListener(() {
       if (_focusNode.hasFocus && !_showCancelButton) {
         _animationController.forward();
@@ -93,13 +61,71 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     });
   }
 
+  Future<MimirIndex> initializeMimir() async {
+    final instance = await Mimir.defaultInstance;
+    _mimirIndex = await instance.openIndex('Terminals', primaryKey: 'localId');
+
+    // Build the index with terminal data
+    final terminalData = await widget.terminalService.getTerminals();
+    for (final terminal in terminalData) {
+      final terminalMap = terminal.getSearchMap();
+      await _mimirIndex.addDocument(terminalMap);
+    }
+    return _mimirIndex;
+  }
+
+  void _searchTerminals() {
+    if (_searchTextController.text.isEmpty) {
+      return;
+    }
+
+    final query = _searchTextController.text;
+
+    // Assuming a simple search without pagination for the initial search
+    _mimirIndex
+        .search(
+      query: query,
+      resultsLimit: 20,
+    )
+        .then((results) {
+      // Assuming `results` is a list of maps
+      final terminals = List<Map<String, dynamic>>.from(results);
+      _pagingController.itemList = terminals;
+    }).catchError((error) {
+      debugPrint("Error searching terminals: $error");
+    });
+  }
+
+  void _loadMoreTerminals(int pageKey) {
+    final query = _searchTextController.text;
+    // Implementing pagination logic with Mimir search, assuming `pageKey` is used for pagination
+    // This is a simplified version. Adjust according to your pagination strategy.
+    _mimirIndex
+        .search(
+      query: query,
+      // Assuming `pageKey` corresponds to offset for demonstration purposes
+      resultsLimit: 20, // Limit for each page
+    )
+        .then((results) {
+      final terminals = List<Map<String, dynamic>>.from(results);
+      final isLastPage = terminals.length < 20; // Assuming 20 is the page size
+      if (isLastPage) {
+        _pagingController.appendLastPage(terminals);
+      } else {
+        _pagingController.appendPage(terminals, pageKey + 1);
+      }
+    }).catchError((error) {
+      print("Error loading more terminals: $error");
+      _pagingController.error = error;
+    });
+  }
+
   @override
   void dispose() {
     _focusNode.dispose();
     _searchTextController.dispose();
     _animationController.dispose();
     _pagingController.dispose();
-    _terminalSearcher.dispose();
     super.dispose();
   }
 
@@ -121,8 +147,13 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
                     child:
                         suggestedText(), // Non-scrollable text becomes part of the scrollable area
                   ),
-                _hits(
-                    context), // This method should return a Sliver widget to be compatible
+                _isMimirInitialized
+                    ? _hits(context)
+                    : const SliverToBoxAdapter(
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ), // This method should return a Sliver widget to be compatible
               ],
             ),
           ),
@@ -258,9 +289,9 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
   }
 
   Widget _hits(BuildContext context) {
-    return PagedSliverList<int, TerminalSearchResult>.separated(
+    return PagedSliverList<int, Map<String, dynamic>>.separated(
       pagingController: _pagingController,
-      builderDelegate: PagedChildBuilderDelegate<TerminalSearchResult>(
+      builderDelegate: PagedChildBuilderDelegate<Map<String, dynamic>>(
         itemBuilder: (context, item, index) => terminalResult(context, item),
         noItemsFoundIndicatorBuilder: (_) => const Center(
           child: Text(
@@ -274,7 +305,8 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     );
   }
 
-  Widget terminalResult(BuildContext context, TerminalSearchResult terminal) {
+  Widget terminalResult(
+      BuildContext context, Map<String, dynamic> terminalData) {
     return InkWell(
         onTap: () {
           // TODO: Create map of terminal name to terminal data maps
@@ -285,13 +317,13 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: stackedTerminalInfo(terminal),
+                  child: stackedTerminalInfo(terminalData),
                 ),
               )),
         ]));
   }
 
-  Widget stackedTerminalInfo(TerminalSearchResult terminal) {
+  Widget stackedTerminalInfo(Map<String, dynamic> terminalData) {
     final resultHeight = getTerminalResultHeight();
     final textSeperatorHeight = (resultHeight * 0.08).ceilToDouble();
 
@@ -299,9 +331,9 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        nameText(terminal.name),
+        nameText(terminalData['name']),
         SizedBox(height: textSeperatorHeight),
-        locationText(terminal.location),
+        locationText(terminalData['location']),
       ],
     );
   }

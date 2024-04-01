@@ -53,6 +53,8 @@ dependencies:
   provider: ^6.1.2
   algolia_helper_flutter: ^1.0.0-pre
   infinite_scroll_pagination: ^3.2.0
+  mimir: ^0.0.2+1
+  flutter_mimir: ^0.0.2+1
 
 dev_dependencies:
   flutter_test:

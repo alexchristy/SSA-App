@@ -1,5 +1,6 @@
 // /lib/models/terminal.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
 
 class Terminal {
   final String archiveDir;
@@ -103,5 +104,15 @@ class Terminal {
 
   String getGroup() {
     return group;
+  }
+
+  Map<String, dynamic> getSearchMap() {
+    final uuid = const Uuid().v4();
+    return {
+      'localId': uuid,
+      'name': name,
+      'location': location,
+      'group': group,
+    };
   }
 }
