@@ -92,6 +92,15 @@ class _TerminalsListState extends State<TerminalsList> {
         showLoadingIndicator =
             false; // Ensure the loading indicator is hidden after terminals are loaded
       });
+
+      // Save the loaded terminals to the global provider only
+      // if we have not loaded them before
+      if (!downloadedTerminals) {
+        // Map Name --> Terminal
+        Provider.of<GlobalProvider>(context, listen: false).terminals = {
+          for (var item in terminals) (item).name: item
+        };
+      }
     } catch (e) {
       if (!mounted) {
         return; // Check if the widget is still in the tree before setting state

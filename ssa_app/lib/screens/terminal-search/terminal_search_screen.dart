@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ssa_app/constants/app_colors.dart';
 import 'package:algolia_helper_flutter/algolia_helper_flutter.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:ssa_app/models/terminal.dart';
+import 'package:ssa_app/providers/global_provider.dart';
 import 'package:ssa_app/screens/terminal-search/terminal_search_result.dart';
 import 'package:ssa_app/screens/terminal-search/hits_page.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart';
 
 class TerminalSearchScreen extends StatefulWidget {
   final TerminalService terminalService;
@@ -293,30 +299,29 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
                 if (!hasConnection) {
                   // Use mounted to check if the widget is still in the widget tree
                   if (mounted) {
+                    // Prevent from queuing multiple snackbar messages
+                    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+
                     // If there's no internet connection, show a snackbar or some other UI indication
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                            'No internet connection. Please check your connection and try again.'),
-                        duration: Duration(seconds: 2),
+                          'No internet connection. Please check your connection and try again.',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                       ),
                     );
                   }
                   return; // Exit the function to prevent further execution
                 }
-                _pagingController.refresh();
 
-                // Explicitly re-trigger the search with the current search term, if needed
-                // This is just a conceptual approach; adapt it to your actual search triggering logic
-                final searchText = _searchTextController.text;
-                if (searchText.isNotEmpty) {
+                if (mounted) {
+                  final searchText = _searchTextController.text;
+
+                  _pagingController.refresh();
+
                   _terminalSearcher.applyState(
                     (state) => state.copyWith(query: searchText, page: 0),
-                  );
-                } else {
-                  // If no search text, make sure to fetch initial data if that's the intended behavior
-                  _terminalSearcher.applyState(
-                    (state) => state.copyWith(query: "", page: 0),
                   );
                 }
               },
@@ -339,28 +344,45 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     );
   }
 
+  Widget noResultsWidget() {
+    return const Center(
+      child: Text(
+        'No results found.',
+        style: TextStyle(fontSize: 20.0),
+      ),
+    );
+  }
+
   Widget _hits(BuildContext context) {
     return PagedSliverList<int, TerminalSearchResult>.separated(
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<TerminalSearchResult>(
         itemBuilder: (context, item, index) => terminalResult(context, item),
         firstPageErrorIndicatorBuilder: (_) => searchError(),
-        noItemsFoundIndicatorBuilder: (_) => const Center(
-          child: Text(
-            'No results found.',
-            style: TextStyle(fontSize: 20.0),
-          ),
-        ),
+        newPageErrorIndicatorBuilder: (_) => searchError(),
+        noItemsFoundIndicatorBuilder: (_) => noResultsWidget(),
       ),
       separatorBuilder: (context, index) =>
           const Divider(), // Add dividers between items
     );
   }
 
-  Widget terminalResult(BuildContext context, TerminalSearchResult terminal) {
+  Widget terminalResult(
+      BuildContext context, TerminalSearchResult terminalResult) {
     return InkWell(
         onTap: () {
-          // TODO: Create map of terminal name to terminal data maps
+          // Access terminal from GlobalProvider
+          Terminal? terminal =
+              Provider.of<GlobalProvider>(context, listen: false)
+                  .terminals[terminalResult.name];
+
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => TerminalDetailPage(
+                  terminalData: terminal!
+                      .toMap()), // Will not be null since map is built in previous screen
+            ),
+          );
         },
         child: Column(children: [
           SizedBox(
@@ -368,7 +390,7 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: stackedTerminalInfo(terminal),
+                  child: stackedTerminalInfo(terminalResult),
                 ),
               )),
         ]));
