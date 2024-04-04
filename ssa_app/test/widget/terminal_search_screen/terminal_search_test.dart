@@ -13,7 +13,10 @@ void main() {
         (WidgetTester tester) async {
       final terminalService = MockTerminalService();
       await tester.pumpWidget(MaterialApp(
-          home: TerminalSearchScreen(terminalService: terminalService)));
+          home: TerminalSearchScreen(
+        terminalService: terminalService,
+        terminalCardHeight: 50.0,
+      )));
       await tester.pumpAndSettle();
       expect(find.byIcon(Icons.close), findsOneWidget);
     });
@@ -23,7 +26,10 @@ void main() {
     testWidgets('Search bar is full length on initial loading',
         (WidgetTester tester) async {
       // Define the MaterialApp to set a context with MediaQuery
-      await tester.pumpWidget(MaterialApp(home: TerminalSearchScreen()));
+      await tester.pumpWidget(MaterialApp(
+          home: TerminalSearchScreen(
+        terminalCardHeight: 50.0,
+      )));
 
       // Find the TextField widget
       final Finder textFieldFinder = find.byType(TextField);
@@ -52,7 +58,10 @@ void main() {
     testWidgets('Cancel button appears when search bar is tapped',
         (WidgetTester tester) async {
       // Pump the TerminalSearchScreen widget into the widget tree
-      await tester.pumpWidget(MaterialApp(home: TerminalSearchScreen()));
+      await tester.pumpWidget(MaterialApp(
+          home: TerminalSearchScreen(
+        terminalCardHeight: 50.0,
+      )));
 
       // Find the TextField by looking for a widget with the 'Search' labelText
       final Finder searchField = find.byWidgetPredicate((Widget widget) =>
