@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:ssa_app/screens/terminal-search/terminal_search_screen.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 
 import 'terminal_search_test.mocks.dart';
 
@@ -25,9 +26,12 @@ void main() {
   group("Animation Terminal search screen tests.", () {
     testWidgets('Search bar is full length on initial loading',
         (WidgetTester tester) async {
+      final terminalService = MockTerminalService();
+
       // Define the MaterialApp to set a context with MediaQuery
       await tester.pumpWidget(MaterialApp(
           home: TerminalSearchScreen(
+        terminalService: terminalService,
         terminalCardHeight: 50.0,
       )));
 
@@ -57,9 +61,12 @@ void main() {
 
     testWidgets('Cancel button appears when search bar is tapped',
         (WidgetTester tester) async {
+      final terminalService = MockTerminalService();
+
       // Pump the TerminalSearchScreen widget into the widget tree
       await tester.pumpWidget(MaterialApp(
           home: TerminalSearchScreen(
+        terminalService: terminalService,
         terminalCardHeight: 50.0,
       )));
 
