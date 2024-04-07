@@ -1,7 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:ssa_app/providers/terminals_provider.dart';
 import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart';
 import 'package:ssa_app/utils/image_utils.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
@@ -120,35 +118,23 @@ class _TerminalsListState extends State<TerminalsList> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double shortestSide = MediaQuery.of(context).size.shortestSide;
 
-    Provider.of<TerminalsProvider>(context, listen: false).terminalCardWidth =
-        getTileWidth(screenWidth);
+    // Set the dynamic sizes in the global provider
+    Provider.of<GlobalProvider>(context, listen: false)
+        .setDynamicSizes(screenWidth, shortestSide);
 
-    Provider.of<TerminalsProvider>(context, listen: false).terminalCardHeight =
-        getTileHeight(shortestSide);
-
-    Provider.of<TerminalsProvider>(context, listen: false).terminalCardPadding =
-        ((screenWidth -
-                    Provider.of<TerminalsProvider>(context, listen: false)
-                        .terminalCardWidth) /
-                2)
-            .floorToDouble();
-
-    final double tileWidth =
-        Provider.of<TerminalsProvider>(context).terminalCardWidth;
-    final double tileHeight =
-        Provider.of<TerminalsProvider>(context).terminalCardHeight;
-    final double listEdgePadding =
-        Provider.of<TerminalsProvider>(context).terminalCardPadding;
-    final double topFilterPadding = (0.8 * listEdgePadding).floorToDouble();
+    final double tileWidth = Provider.of<GlobalProvider>(context).cardWidth;
+    final double tileHeight = Provider.of<GlobalProvider>(context).cardHeight;
+    final double edgePadding = Provider.of<GlobalProvider>(context).cardPadding;
+    final double topFilterPadding = (0.8 * edgePadding).floorToDouble();
 
     return Scaffold(
-      appBar: buildAppBar(context, edgePadding: listEdgePadding),
+      appBar: buildAppBar(context, edgePadding: edgePadding),
       body: Stack(
         children: [
           buildList(
             tileWidth: tileWidth,
             tileHeight: tileHeight,
-            listEdgePadding: listEdgePadding,
+            listEdgePadding: edgePadding,
             topFilterPadding: topFilterPadding,
           ),
           // Overlay the loading indicator when loading
@@ -244,12 +230,8 @@ class _TerminalsListState extends State<TerminalsList> {
   }
 
   void navigateToSearchScreen(BuildContext context) {
-    final cardHeight = Provider.of<TerminalsProvider>(context, listen: false)
-        .terminalCardHeight;
-    Navigator.of(context).push(SlideUpTransition(
-        builder: (context) => TerminalSearchScreen(
-              terminalCardHeight: cardHeight,
-            )));
+    Navigator.of(context)
+        .push(SlideUpTransition(builder: (context) => TerminalSearchScreen()));
   }
 
   Widget buildList(
@@ -316,21 +298,6 @@ class _TerminalsListState extends State<TerminalsList> {
         ),
       );
     }
-  }
-
-  void clearImageCache() {
-    DefaultCacheManager().emptyCache();
-  }
-
-  double getTileWidth(double screenWidth) {
-    return ((screenWidth * 0.9) / 2).ceil() * 2; // Ensure it's an even number
-  }
-
-  // Calculate the tile height based on the shortest side of the screen
-  // and the tile width.
-  double getTileHeight(double shortestSide) {
-    double portraitTileWidth = getTileWidth(shortestSide);
-    return (portraitTileWidth * 0.36).ceilToDouble();
   }
 }
 

@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 class TerminalDetailPage extends StatelessWidget {
   final Map<String, dynamic> terminalData;
   final PDFService _pdfService = PDFService();
+  static const Key testKey = Key('TerminalDetailPage');
 
   TerminalDetailPage({super.key, required this.terminalData});
 

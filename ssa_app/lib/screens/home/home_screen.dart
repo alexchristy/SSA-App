@@ -3,8 +3,6 @@ import 'package:ssa_app/constants/app_colors.dart';
 import 'package:ssa_app/services/custom_icons/airport.dart';
 import 'package:ssa_app/screens/terminal-list/terminal_list_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
-import 'package:ssa_app/providers/terminals_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -127,13 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void navigateToTerminalList() {
-    Navigator.of(context).push(
+    Navigator.push(
+      context,
       MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider<TerminalsProvider>(
-          create: (_) =>
-              TerminalsProvider(), // Create a new instance of the provider
-          child: TerminalsList(), // Your destination screen
-        ),
+        builder: (context) => TerminalsList(),
       ),
     );
   }

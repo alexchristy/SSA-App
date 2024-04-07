@@ -85,6 +85,27 @@ class Terminal {
     };
   }
 
+  factory Terminal.fromMap(Map<String, dynamic> map) {
+    return Terminal(
+      archiveDir: map['archiveDir'],
+      group: map['group'],
+      last30DayUpdateTimestamp: map['last30DayUpdateTimestamp'] as Timestamp?,
+      last72HourUpdateTimestamp: map['last72HourUpdateTimestamp'] as Timestamp?,
+      lastCheckTimestamp: map['lastCheckTimestamp'] as Timestamp?,
+      lastRollcallUpdateTimestamp:
+          map['lastRollcallUpdateTimestamp'] as Timestamp?,
+      link: map['link'],
+      location: map['location'],
+      name: map['name'],
+      pagePosition: map['pagePosition'],
+      pdf30DayHash: map['pdf30DayHash'] as String?,
+      pdf72HourHash: map['pdf72HourHash'] as String?,
+      pdfRollcallHash: map['pdfRollcallHash'] as String?,
+      terminalImageUrl: map['terminalImageUrl'] as String?,
+      timezone: map['timezone'],
+    );
+  }
+
   String getName() {
     return name;
   }

@@ -1,5 +1,5 @@
 import 'package:algolia_helper_flutter/algolia_helper_flutter.dart';
-import 'package:ssa_app/screens/terminal-search/terminal_search_result.dart';
+import 'package:ssa_app/models/terminal_search_result.dart';
 
 class HitsPage {
   const HitsPage(this.items, this.pageKey, this.nextPageKey);

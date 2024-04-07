@@ -7,7 +7,7 @@ import 'package:algolia_helper_flutter/algolia_helper_flutter.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:ssa_app/models/terminal.dart';
 import 'package:ssa_app/providers/global_provider.dart';
-import 'package:ssa_app/screens/terminal-search/terminal_search_result.dart';
+import 'package:ssa_app/models/terminal_search_result.dart';
 import 'package:ssa_app/screens/terminal-search/hits_page.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -15,14 +15,18 @@ import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart
 
 class TerminalSearchScreen extends StatefulWidget {
   final TerminalService terminalService;
-  final double terminalCardHeight;
+  final HitsSearcher _terminalSearcher;
 
   TerminalSearchScreen(
       {super.key,
       TerminalService? terminalService,
-      required this.terminalCardHeight})
-      : terminalService = terminalService ?? TerminalService();
-
+      HitsSearcher? customHitsSearcher})
+      : terminalService = terminalService ?? TerminalService(),
+        _terminalSearcher = customHitsSearcher ??
+            HitsSearcher(
+                applicationID: 'TO5YM9V5TU',
+                apiKey: 'be3d7f96977a9780ffc8cf2c0ea9250d',
+                indexName: 'Terminals');
   @override
   TerminalSearchScreenState createState() => TerminalSearchScreenState();
 }
@@ -35,17 +39,11 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
   late Animation<double> _opacityAnimation;
   bool _showCancelButton = false;
 
-  // Algolia Search instance
-  final _terminalSearcher = HitsSearcher(
-      applicationID: 'TO5YM9V5TU',
-      apiKey: 'be3d7f96977a9780ffc8cf2c0ea9250d',
-      indexName: 'Terminals');
-
   final PagingController<int, TerminalSearchResult> _pagingController =
       PagingController(firstPageKey: 0);
 
   Stream<HitsPage> get _searchPage =>
-      _terminalSearcher.responses.map(HitsPage.fromResponse);
+      widget._terminalSearcher.responses.map(HitsPage.fromResponse);
 
   @override
   void initState() {
@@ -57,7 +55,7 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
       // Assuming `_terminalSearcher.query()` is not needed anymore as `applyState` seems to handle the update.
       // If it's still needed, call it here.
       // _terminalSearcher.query(searchText);
-      _terminalSearcher.applyState(
+      widget._terminalSearcher.applyState(
         (state) => state.copyWith(query: searchText, page: 0),
       );
 
@@ -72,8 +70,8 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
       _pagingController.appendPage(page.items, page.nextPageKey);
     }).onError((error) => _pagingController.error = error);
 
-    _pagingController.addPageRequestListener(
-        (pageKey) => _terminalSearcher.applyState((state) => state.copyWith(
+    _pagingController.addPageRequestListener((pageKey) =>
+        widget._terminalSearcher.applyState((state) => state.copyWith(
               page: pageKey,
             )));
 
@@ -101,18 +99,25 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     _searchTextController.dispose();
     _animationController.dispose();
     _pagingController.dispose();
-    _terminalSearcher.dispose();
+    widget._terminalSearcher.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    double customPadding = Provider.of<GlobalProvider>(context).cardPadding;
+    double halfPadding = Provider.of<GlobalProvider>(context).halfCardPadding;
+
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: buildAppBar(context),
+      appBar: buildAppBar(context,
+          edgePadding: customPadding, halfPadding: halfPadding),
       body: Column(
         children: [
-          searchBarSection(), // This remains non-scrollable at the top
+          searchBarSection(
+              edgePadding: customPadding,
+              halfPadding:
+                  halfPadding), // This remains non-scrollable at the top
           Expanded(
             // This makes everything inside it scrollable
             child: CustomScrollView(
@@ -120,11 +125,14 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
                 if (_searchTextController
                     .text.isEmpty) // Conditionally include this
                   SliverToBoxAdapter(
-                    child:
-                        suggestedText(), // Non-scrollable text becomes part of the scrollable area
+                    child: suggestedText(
+                        edgePadding: customPadding,
+                        halfPadding:
+                            halfPadding), // Non-scrollable text becomes part of the scrollable area
                   ),
-                _hits(
-                    context), // This method should return a Sliver widget to be compatible
+                _hits(context,
+                    edgePadding:
+                        customPadding), // This method should return a Sliver widget to be compatible
               ],
             ),
           ),
@@ -133,10 +141,14 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     );
   }
 
-  Widget suggestedText() {
-    return const Padding(
-      padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0, right: 16.0),
-      child: Text(
+  Widget suggestedText({double edgePadding = 16.0, double halfPadding = 8.0}) {
+    return Padding(
+      padding: EdgeInsets.only(
+          left: edgePadding,
+          top: edgePadding,
+          bottom: halfPadding,
+          right: edgePadding),
+      child: const Text(
         'SUGGESTED TERMINALS',
         style: TextStyle(
           fontSize: 16.0,
@@ -147,9 +159,12 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     );
   }
 
-  PreferredSize buildAppBar(BuildContext context, {double edgePadding = 8.0}) {
+  PreferredSize buildAppBar(BuildContext context,
+      {double edgePadding = 16.0, double halfPadding = 8.0}) {
     // Calculate the app bar height with consideration for the icon size and padding
-    double baseAppBarHeight = 50.0;
+    double baseAppBarHeight = // 10% of screen height
+        (MediaQuery.of(context).size.height * 0.05).floorToDouble() +
+            edgePadding;
 
     // Customizing the AppBar theme locally
     final appBarTheme = Theme.of(context).appBarTheme.copyWith(
@@ -169,7 +184,7 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
           ),
           leading: Padding(
             // Apply left padding to the leading icon
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: EdgeInsets.only(left: halfPadding),
             child: IconButton(
               icon: const Icon(Icons.close),
               onPressed: () => Navigator.of(context).pop(),
@@ -181,20 +196,22 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
         ));
   }
 
-  Widget searchBarSection() {
+  Widget searchBarSection(
+      {double edgePadding = 16.0, double halfPadding = 8.0}) {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0), // Apply horizontal padding to the search bar
-          child: searchBarAndCancelBtn(),
+          padding: EdgeInsets.symmetric(
+              horizontal: edgePadding,
+              vertical:
+                  halfPadding), // Apply horizontal padding to the search bar
+          child: searchBarAndCancelBtn(halfPadding: halfPadding),
         )
       ],
     );
   }
 
-  Widget searchBarAndCancelBtn() {
+  Widget searchBarAndCancelBtn({double halfPadding = 8.0}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -237,7 +254,7 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
           axis: Axis.horizontal,
           axisAlignment: -1.0,
           child: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: EdgeInsets.only(left: halfPadding),
             child: TextButton(
               onPressed: () {
                 _searchTextController.clear();
@@ -320,7 +337,7 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
 
                   _pagingController.refresh();
 
-                  _terminalSearcher.applyState(
+                  widget._terminalSearcher.applyState(
                     (state) => state.copyWith(query: searchText, page: 0),
                   );
                 }
@@ -353,11 +370,12 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     );
   }
 
-  Widget _hits(BuildContext context) {
+  Widget _hits(BuildContext context, {double edgePadding = 16.0}) {
     return PagedSliverList<int, TerminalSearchResult>.separated(
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<TerminalSearchResult>(
-        itemBuilder: (context, item, index) => terminalResult(context, item),
+        itemBuilder: (context, item, index) =>
+            terminalResult(context, item, edgePadding: edgePadding),
         firstPageErrorIndicatorBuilder: (_) => searchError(),
         newPageErrorIndicatorBuilder: (_) => searchError(),
         noItemsFoundIndicatorBuilder: (_) => noResultsWidget(),
@@ -368,7 +386,10 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
   }
 
   Widget terminalResult(
-      BuildContext context, TerminalSearchResult terminalResult) {
+      BuildContext context, TerminalSearchResult terminalResult,
+      {double edgePadding = 16.0}) {
+    double cardHeight = Provider.of<GlobalProvider>(context).cardHeight;
+
     return InkWell(
         onTap: () {
           // Access terminal from GlobalProvider
@@ -386,10 +407,10 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
         },
         child: Column(children: [
           SizedBox(
-              height: getTerminalResultHeight(),
+              height: getTerminalResultHeight(cardHeight: cardHeight),
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  padding: EdgeInsets.symmetric(horizontal: edgePadding),
                   child: stackedTerminalInfo(terminalResult),
                 ),
               )),
@@ -397,7 +418,8 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
   }
 
   Widget stackedTerminalInfo(TerminalSearchResult terminal) {
-    final resultHeight = getTerminalResultHeight();
+    double cardHeight = Provider.of<GlobalProvider>(context).cardHeight;
+    final resultHeight = getTerminalResultHeight(cardHeight: cardHeight);
     final textSeperatorHeight = (resultHeight * 0.08).ceilToDouble();
 
     return Column(
@@ -440,8 +462,8 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     );
   }
 
-  double getTerminalResultHeight() {
+  double getTerminalResultHeight({required double cardHeight}) {
     // 80% of the terminal card height rounded up to the nearest whole number
-    return (widget.terminalCardHeight * 0.8).ceilToDouble();
+    return (cardHeight * 0.8).ceilToDouble();
   }
 }

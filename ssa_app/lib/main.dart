@@ -7,7 +7,7 @@ import 'package:ssa_app/providers/global_provider.dart';
 
 void main() async {
   await FirebaseInitializer.initializeFirebase();
-  runApp(ChangeNotifierProvider(
+  runApp(Provider(
     create: (context) => GlobalProvider(),
     child: const MyApp(),
   ));

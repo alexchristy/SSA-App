@@ -3,12 +3,19 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i5;
 
-import 'package:cloud_firestore/cloud_firestore.dart' as _i5;
+import 'package:algolia_helper_flutter/src/model/facet.dart' as _i8;
+import 'package:algolia_helper_flutter/src/model/multi_search_response.dart'
+    as _i7;
+import 'package:algolia_helper_flutter/src/model/multi_search_state.dart'
+    as _i3;
+import 'package:algolia_helper_flutter/src/searcher/hits_searcher.dart' as _i10;
+import 'package:cloud_firestore/cloud_firestore.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i9;
 import 'package:ssa_app/models/terminal.dart' as _i2;
-import 'package:ssa_app/utils/terminal_utils.dart' as _i3;
+import 'package:ssa_app/utils/terminal_utils.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -33,27 +40,37 @@ class _FakeTerminal_0 extends _i1.SmartFake implements _i2.Terminal {
         );
 }
 
+class _FakeSearchState_1 extends _i1.SmartFake implements _i3.SearchState {
+  _FakeSearchState_1(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [TerminalService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTerminalService extends _i1.Mock implements _i3.TerminalService {
+class MockTerminalService extends _i1.Mock implements _i4.TerminalService {
   MockTerminalService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<List<_i2.Terminal>> getTerminals({dynamic fromCache = true}) =>
+  _i5.Future<List<_i2.Terminal>> getTerminals({dynamic fromCache = true}) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTerminals,
           [],
           {#fromCache: fromCache},
         ),
-        returnValue: _i4.Future<List<_i2.Terminal>>.value(<_i2.Terminal>[]),
-      ) as _i4.Future<List<_i2.Terminal>>);
+        returnValue: _i5.Future<List<_i2.Terminal>>.value(<_i2.Terminal>[]),
+      ) as _i5.Future<List<_i2.Terminal>>);
 
   @override
-  _i2.Terminal getTerminalFromDoc(_i5.QueryDocumentSnapshot<Object?>? doc) =>
+  _i2.Terminal getTerminalFromDoc(_i6.QueryDocumentSnapshot<Object?>? doc) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTerminalFromDoc,
@@ -69,7 +86,7 @@ class MockTerminalService extends _i1.Mock implements _i3.TerminalService {
       ) as _i2.Terminal);
 
   @override
-  _i4.Future<List<_i5.QueryDocumentSnapshot<Object?>>> getTerminalDocs(
+  _i5.Future<List<_i6.QueryDocumentSnapshot<Object?>>> getTerminalDocs(
           {dynamic fromCache = true}) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -77,12 +94,12 @@ class MockTerminalService extends _i1.Mock implements _i3.TerminalService {
           [],
           {#fromCache: fromCache},
         ),
-        returnValue: _i4.Future<List<_i5.QueryDocumentSnapshot<Object?>>>.value(
-            <_i5.QueryDocumentSnapshot<Object?>>[]),
-      ) as _i4.Future<List<_i5.QueryDocumentSnapshot<Object?>>>);
+        returnValue: _i5.Future<List<_i6.QueryDocumentSnapshot<Object?>>>.value(
+            <_i6.QueryDocumentSnapshot<Object?>>[]),
+      ) as _i5.Future<List<_i6.QueryDocumentSnapshot<Object?>>>);
 
   @override
-  _i4.Future<List<_i2.Terminal>> getTerminalsByGroups({
+  _i5.Future<List<_i2.Terminal>> getTerminalsByGroups({
     required List<String>? groups,
     dynamic fromCache = true,
   }) =>
@@ -95,21 +112,238 @@ class MockTerminalService extends _i1.Mock implements _i3.TerminalService {
             #fromCache: fromCache,
           },
         ),
-        returnValue: _i4.Future<List<_i2.Terminal>>.value(<_i2.Terminal>[]),
-      ) as _i4.Future<List<_i2.Terminal>>);
+        returnValue: _i5.Future<List<_i2.Terminal>>.value(<_i2.Terminal>[]),
+      ) as _i5.Future<List<_i2.Terminal>>);
 
   @override
-  _i4.Future<_i2.Terminal> getTerminalById(String? id) => (super.noSuchMethod(
+  _i5.Future<_i2.Terminal> getTerminalById(String? id) => (super.noSuchMethod(
         Invocation.method(
           #getTerminalById,
           [id],
         ),
-        returnValue: _i4.Future<_i2.Terminal>.value(_FakeTerminal_0(
+        returnValue: _i5.Future<_i2.Terminal>.value(_FakeTerminal_0(
           this,
           Invocation.method(
             #getTerminalById,
             [id],
           ),
         )),
-      ) as _i4.Future<_i2.Terminal>);
+      ) as _i5.Future<_i2.Terminal>);
+}
+
+/// A class which mocks [SearchResponse].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSearchResponse extends _i1.Mock implements _i7.SearchResponse {
+  MockSearchResponse() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  Map<String, dynamic> get raw => (super.noSuchMethod(
+        Invocation.getter(#raw),
+        returnValue: <String, dynamic>{},
+      ) as Map<String, dynamic>);
+
+  @override
+  List<_i7.Hit> get hits => (super.noSuchMethod(
+        Invocation.getter(#hits),
+        returnValue: <_i7.Hit>[],
+      ) as List<_i7.Hit>);
+
+  @override
+  Map<String, List<_i8.Facet>> get disjunctiveFacets => (super.noSuchMethod(
+        Invocation.getter(#disjunctiveFacets),
+        returnValue: <String, List<_i8.Facet>>{},
+      ) as Map<String, List<_i8.Facet>>);
+
+  @override
+  set disjunctiveFacets(Map<String, List<_i8.Facet>>? _disjunctiveFacets) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #disjunctiveFacets,
+          _disjunctiveFacets,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  Map<String, List<_i8.Facet>> get hierarchicalFacets => (super.noSuchMethod(
+        Invocation.getter(#hierarchicalFacets),
+        returnValue: <String, List<_i8.Facet>>{},
+      ) as Map<String, List<_i8.Facet>>);
+
+  @override
+  set hierarchicalFacets(Map<String, List<_i8.Facet>>? _hierarchicalFacets) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #hierarchicalFacets,
+          _hierarchicalFacets,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  String get params => (super.noSuchMethod(
+        Invocation.getter(#params),
+        returnValue: _i9.dummyValue<String>(
+          this,
+          Invocation.getter(#params),
+        ),
+      ) as String);
+
+  @override
+  String get query => (super.noSuchMethod(
+        Invocation.getter(#query),
+        returnValue: _i9.dummyValue<String>(
+          this,
+          Invocation.getter(#query),
+        ),
+      ) as String);
+
+  @override
+  int get hitsPerPage => (super.noSuchMethod(
+        Invocation.getter(#hitsPerPage),
+        returnValue: 0,
+      ) as int);
+
+  @override
+  int get nbHits => (super.noSuchMethod(
+        Invocation.getter(#nbHits),
+        returnValue: 0,
+      ) as int);
+
+  @override
+  int get nbPages => (super.noSuchMethod(
+        Invocation.getter(#nbPages),
+        returnValue: 0,
+      ) as int);
+
+  @override
+  int get page => (super.noSuchMethod(
+        Invocation.getter(#page),
+        returnValue: 0,
+      ) as int);
+
+  @override
+  Map<String, List<_i8.Facet>> get facets => (super.noSuchMethod(
+        Invocation.getter(#facets),
+        returnValue: <String, List<_i8.Facet>>{},
+      ) as Map<String, List<_i8.Facet>>);
+
+  @override
+  Map<String, Map<String, num>> get facetsStats => (super.noSuchMethod(
+        Invocation.getter(#facetsStats),
+        returnValue: <String, Map<String, num>>{},
+      ) as Map<String, Map<String, num>>);
+
+  @override
+  bool get exhaustiveNbHits => (super.noSuchMethod(
+        Invocation.getter(#exhaustiveNbHits),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  int get processingTimeMS => (super.noSuchMethod(
+        Invocation.getter(#processingTimeMS),
+        returnValue: 0,
+      ) as int);
+}
+
+/// A class which mocks [HitsSearcher].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockHitsSearcher extends _i1.Mock implements _i10.HitsSearcher {
+  @override
+  _i5.Stream<_i3.SearchState> get state => (super.noSuchMethod(
+        Invocation.getter(#state),
+        returnValue: _i5.Stream<_i3.SearchState>.empty(),
+        returnValueForMissingStub: _i5.Stream<_i3.SearchState>.empty(),
+      ) as _i5.Stream<_i3.SearchState>);
+
+  @override
+  _i5.Stream<_i7.SearchResponse> get responses => (super.noSuchMethod(
+        Invocation.getter(#responses),
+        returnValue: _i5.Stream<_i7.SearchResponse>.empty(),
+        returnValueForMissingStub: _i5.Stream<_i7.SearchResponse>.empty(),
+      ) as _i5.Stream<_i7.SearchResponse>);
+
+  @override
+  bool get isDisposed => (super.noSuchMethod(
+        Invocation.getter(#isDisposed),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  String get indexName => (super.noSuchMethod(
+        Invocation.getter(#indexName),
+        returnValue: _i9.dummyValue<String>(
+          this,
+          Invocation.getter(#indexName),
+        ),
+        returnValueForMissingStub: _i9.dummyValue<String>(
+          this,
+          Invocation.getter(#indexName),
+        ),
+      ) as String);
+
+  @override
+  void query(String? query) => super.noSuchMethod(
+        Invocation.method(
+          #query,
+          [query],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i3.SearchState snapshot() => (super.noSuchMethod(
+        Invocation.method(
+          #snapshot,
+          [],
+        ),
+        returnValue: _FakeSearchState_1(
+          this,
+          Invocation.method(
+            #snapshot,
+            [],
+          ),
+        ),
+        returnValueForMissingStub: _FakeSearchState_1(
+          this,
+          Invocation.method(
+            #snapshot,
+            [],
+          ),
+        ),
+      ) as _i3.SearchState);
+
+  @override
+  void applyState(_i3.SearchState Function(_i3.SearchState)? config) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #applyState,
+          [config],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void rerun() => super.noSuchMethod(
+        Invocation.method(
+          #rerun,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void dispose() => super.noSuchMethod(
+        Invocation.method(
+          #dispose,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 }
