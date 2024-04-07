@@ -391,6 +391,7 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
     double cardHeight = Provider.of<GlobalProvider>(context).cardHeight;
 
     return InkWell(
+        key: const Key("terminalSearchResult"),
         onTap: () {
           // Access terminal from GlobalProvider
           Terminal? terminal =

@@ -4,7 +4,7 @@ import 'package:ssa_app/models/filter.dart'; // Ensure your Filter model is corr
 class TerminalFilterWidget extends StatefulWidget {
   final List<Filter> filters;
   final Function(List<String>) onFiltersSelected;
-  final double edgePadding; // Adjust to match the TerminalsList items
+  final double edgePadding;
 
   const TerminalFilterWidget({
     super.key,
@@ -23,19 +23,16 @@ class _TerminalFilterWidgetState extends State<TerminalFilterWidget> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 45, // Adjust based on your UI design
+      height: 45,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        physics: const ClampingScrollPhysics(), // Add this line
+        physics: const ClampingScrollPhysics(),
         itemCount: widget.filters.length,
         padding: EdgeInsets.only(
-            // Adjust the padding of the ListView
-            left: widget.edgePadding - 4,
-            right: widget.edgePadding - 4),
+            left: widget.edgePadding - 4, right: widget.edgePadding - 4),
         itemBuilder: (context, index) {
           final filter = widget.filters[index];
-          bool isSelected =
-              selectedFilterIds.contains(filter.id); // Check if selected
+          bool isSelected = selectedFilterIds.contains(filter.id);
           return GestureDetector(
             onTap: () {
               setState(() {
@@ -45,8 +42,7 @@ class _TerminalFilterWidgetState extends State<TerminalFilterWidget> {
                   selectedFilterIds.add(filter.id);
                 }
               });
-              widget.onFiltersSelected(
-                  selectedFilterIds); // Pass back all selected IDs
+              widget.onFiltersSelected(selectedFilterIds);
             },
             child: Container(
               padding:
