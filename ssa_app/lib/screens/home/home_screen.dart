@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ssa_app/constants/app_colors.dart';
+import 'package:ssa_app/providers/global_provider.dart';
 import 'package:ssa_app/services/custom_icons/airport.dart';
 import 'package:ssa_app/screens/terminal-list/terminal_list_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';

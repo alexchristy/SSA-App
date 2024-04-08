@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ssa_app/theme/app_theme.dart'; // Import your theme
-import 'package:ssa_app/screens/home/home_screen.dart'; // Import your home screen
-import 'services/firebase/firebase_init.dart'; // Import the Firebase initializer
+import 'package:ssa_app/theme/app_theme.dart';
+import 'package:ssa_app/screens/home/home_screen.dart';
+import 'services/firebase/firebase_init.dart';
 import 'package:ssa_app/providers/global_provider.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await FirebaseInitializer.initializeFirebase();
+
+  // Create the GlobalProvider and wrap the app with it
+  GlobalProvider globalProvider = GlobalProvider();
+
+  // Sign in anonymously
+  await globalProvider.signInAnonymously();
+
   runApp(Provider(
-    create: (context) => GlobalProvider(),
+    create: (context) => globalProvider,
     child: const MyApp(),
   ));
 }
