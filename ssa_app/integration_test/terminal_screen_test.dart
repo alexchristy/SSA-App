@@ -40,6 +40,31 @@ void main() {
       expect(find.byType(TerminalDetailPage), findsOneWidget);
     });
 
+    testWidgets("Navigate Terminal List and back to Home screen.",
+        (WidgetTester tester) async {
+      // Initialize the app
+      app.main();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Navigate to Terminal List screen
+      final terminalListFinder = find.byType(RawMaterialButton).at(0);
+      await tester.tap(terminalListFinder);
+      await tester.pumpAndSettle();
+
+      // Check if the Terminal List screen is displayed
+      expect(find.byType(TerminalsList), findsOneWidget);
+
+      // Click the back button
+      final backButtonFinder = find.byIcon(Icons.arrow_back);
+      await tester.tap(backButtonFinder);
+      await tester.pumpAndSettle();
+
+      // Check if the Home screen is displayed
+      expect(find.byType(HomeScreen), findsOneWidget);
+    });
+
     testWidgets("Use single Terminal list group filters.",
         (WidgetTester tester) async {
       // Initialize the app
@@ -174,6 +199,45 @@ void main() {
 
       // Check if the Terminal Detail screen is displayed
       expect(find.byType(TerminalDetailPage), findsOneWidget);
+    });
+
+    testWidgets("Navigate to Search screen and back to Home screen.",
+        (WidgetTester tester) async {
+      // Initialize the app
+      app.main();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Navigate to Terminal List screen
+      final terminalListFinder = find.byType(RawMaterialButton).at(0);
+      await tester.tap(terminalListFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TerminalsList), findsOneWidget);
+
+      // Navigate to Terminal Search screen
+      final searchButtonFinder = find.byIcon(Icons.search);
+      await tester.tap(searchButtonFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TerminalSearchScreen), findsOneWidget);
+
+      // Click X button to go back to the list screen
+      final closeButtonFinder = find.byIcon(Icons.close);
+      await tester.tap(closeButtonFinder);
+      await tester.pumpAndSettle();
+
+      // Check if the Terminal List screen is displayed
+      expect(find.byType(TerminalsList), findsOneWidget);
+
+      // Click the back button to go back to the Home screen
+      final backButtonFinder = find.byIcon(Icons.arrow_back);
+      await tester.tap(backButtonFinder);
+      await tester.pumpAndSettle();
+
+      // Check if the Home screen is displayed
+      expect(find.byType(HomeScreen), findsOneWidget);
     });
   });
 }
