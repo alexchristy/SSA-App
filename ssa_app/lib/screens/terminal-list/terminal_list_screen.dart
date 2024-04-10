@@ -115,13 +115,6 @@ class _TerminalsListState extends State<TerminalsList> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double shortestSide = MediaQuery.of(context).size.shortestSide;
-
-    // Set the dynamic sizes in the global provider
-    Provider.of<GlobalProvider>(context, listen: false)
-        .setDynamicSizes(screenWidth, shortestSide);
-
     final double tileWidth = Provider.of<GlobalProvider>(context).cardWidth;
     final double tileHeight = Provider.of<GlobalProvider>(context).cardHeight;
     final double edgePadding = Provider.of<GlobalProvider>(context).cardPadding;
