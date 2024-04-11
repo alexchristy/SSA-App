@@ -56,7 +56,7 @@ dependencies:
   internet_connection_checker: ^1.0.0+1
   firebase_auth: ^4.19.1
   firebase_ui_auth: ^1.13.1
-  firebase_dynamic_links: ^5.5.1qq
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -95,6 +95,7 @@ flutter:
 
   assets:
     - assets/c17_frontal_square_windows.svg
+    - assets/google.svg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

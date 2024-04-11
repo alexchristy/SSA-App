@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ssa_app/constants/app_colors.dart';
-import 'package:ssa_app/screens/sign-up/sign_up_screen.dart';
+import 'package:ssa_app/screens/login-signup/login_signup_screen.dart';
 import 'package:ssa_app/services/custom_icons/airport.dart';
 import 'package:ssa_app/screens/terminal-list/terminal_list_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -166,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Nagvigate to Login page
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const SignUpScreen()),
+            MaterialPageRoute(builder: (context) => const LoginSignUpScreen()),
           );
         },
         style: TextButton.styleFrom(

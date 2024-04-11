@@ -418,7 +418,7 @@ packages:
     source: hosted
     version: "2.15.0"
   firebase_dynamic_links:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: firebase_dynamic_links
       sha256: "06eb485723dc81ff82325351e718efc848960c3af22c81a9830c077b7e089adc"
@@ -551,6 +551,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  google_fonts:
+    dependency: "direct main"
+    description:
+      name: google_fonts
+      sha256: b1ac0fe2832c9cc95e5e88b57d627c5e68c223b9657f4b96e1487aa9098c7b82
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.2.1"
   graphs:
     dependency: transitive
     description:
@@ -1307,4 +1315,4 @@ packages:
     version: "3.1.2"
 sdks:
   dart: ">=3.3.0 <4.0.0"
-  flutter: ">=3.19.0"
+  flutter: ">=3.19.2"
