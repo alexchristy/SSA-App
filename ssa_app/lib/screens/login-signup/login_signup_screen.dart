@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -14,41 +15,123 @@ class LoginSignUpScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: buildAppBar(context, edgePadding: edgePadding),
-      body: Center(
+      backgroundColor: AppColors.ghostWhite,
+      body: SingleChildScrollView(
+        // Wrap the padding in a SingleChildScrollView
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: _buildLoginButtons(context),
+          padding: EdgeInsets.all(edgePadding),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              _informationTopper(context, edgePadding),
+              SizedBox(height: 3 * edgePadding),
+              _buildLoginButtons(context),
+              SizedBox(height: 2 * edgePadding),
+              buildDisclaimer(context),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  PreferredSize buildAppBar(BuildContext context,
-      {double edgePadding = 16.0, double halfPadding = 8.0}) {
-    double baseAppBarHeight = // 10% of screen height
+  PreferredSize buildAppBar(BuildContext context, {double edgePadding = 16.0}) {
+    double baseAppBarHeight =
         (MediaQuery.of(context).size.height * 0.05).floorToDouble() +
             edgePadding;
 
-    // Transparent AppBar with only the back button
     return PreferredSize(
         preferredSize: Size.fromHeight(baseAppBarHeight),
         child: AppBar(
           backgroundColor: Colors.transparent,
+          scrolledUnderElevation: 0.0,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            iconSize: 32,
-            onPressed: () {
-              // Go back to the previous screen
-              Navigator.of(context).pop();
-            },
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ));
   }
 
+  Widget _informationTopper(BuildContext context, double edgePadding) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    // Base font size that scales with the screen width
+    double baseFontSize =
+        screenWidth * 0.05; // Adjust the multiplier to scale the size
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SvgPicture.asset(
+            'assets/c17_frontal_square_windows.svg',
+            width: 45,
+            height: 45,
+            color: AppColors.paynesGray,
+          ),
+          SizedBox(height: 2 * edgePadding),
+          Text(
+            "track updates",
+            style: GoogleFonts.ubuntu(
+              textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize:
+                      baseFontSize * 1.75, // Large text is 1.75x the base size
+                  fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.ellipsis),
+            ),
+          ),
+          Text(
+            "view schedules",
+            style: GoogleFonts.ubuntu(
+              textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: baseFontSize * 1.75, // Consistent large text size
+                  fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.ellipsis),
+            ),
+          ),
+          Text(
+            "conveniently mobile",
+            style: GoogleFonts.ubuntu(
+              textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: baseFontSize * 1.75, // Consistent large text size
+                  fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.ellipsis),
+            ),
+          ),
+          SizedBox(height: edgePadding),
+          Text(
+            "with the app that makes Space-A",
+            style: GoogleFonts.ubuntu(
+              textStyle: TextStyle(
+                color: Colors.black,
+                fontSize: baseFontSize, // Small text is the base size
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          SizedBox(height: edgePadding / 4),
+          Text(
+            "travel a breeze",
+            style: GoogleFonts.ubuntu(
+              textStyle: TextStyle(
+                color: Colors.black,
+                fontSize: baseFontSize, // Consistent small text size
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLoginButtons(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         CustomLoginButton(
@@ -56,9 +139,7 @@ class LoginSignUpScreen extends StatelessWidget {
           text: "Continue with Apple",
           color: Colors.black,
           textColor: Colors.white,
-          onPressed: () {
-            // Handle Apple login logic
-          },
+          onPressed: () {},
         ),
         const SizedBox(height: 10),
         CustomLoginButton(
@@ -66,9 +147,7 @@ class LoginSignUpScreen extends StatelessWidget {
           text: "Continue with Google",
           color: AppColors.white,
           textColor: Colors.black,
-          onPressed: () {
-            // Handle Google login logic
-          },
+          onPressed: () {},
         ),
         const SizedBox(height: 10),
         CustomLoginButton(
@@ -76,9 +155,7 @@ class LoginSignUpScreen extends StatelessWidget {
           text: "Continue with Link",
           color: AppColors.paynesGray,
           textColor: Colors.white,
-          onPressed: () {
-            // Handle Link login logic
-          },
+          onPressed: () {},
         ),
         const SizedBox(height: 10),
         CustomLoginButton(
@@ -86,11 +163,48 @@ class LoginSignUpScreen extends StatelessWidget {
           text: "Continue with Email",
           color: AppColors.paynesGray,
           textColor: Colors.white,
-          onPressed: () {
-            // Handle Email login logic
-          },
+          onPressed: () {},
         ),
       ],
+    );
+  }
+
+  Widget buildDisclaimer(BuildContext context) {
+    // "Terms of Service" and "Privacy Policy" are links iubenda.com
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        style: GoogleFonts.ubuntu(
+          textStyle: const TextStyle(
+            color: Colors.black,
+            fontSize: 14,
+          ),
+        ),
+        children: <TextSpan>[
+          const TextSpan(text: "By continuing, you agree to our "),
+          TextSpan(
+            text: "Terms of Service",
+            style: const TextStyle(
+              decoration: TextDecoration.underline,
+            ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                // Open the "Terms of Service" link
+              },
+          ),
+          const TextSpan(text: " and "),
+          TextSpan(
+            text: "Privacy Policy",
+            style: const TextStyle(
+              decoration: TextDecoration.underline,
+            ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                // Open the "Privacy Policy" link
+              },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -115,20 +229,16 @@ class CustomLoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        minimumSize:
-            const Size(double.infinity, 50), // full width and 50 is the height
+        minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40.0), // Rounded corners
+          borderRadius: BorderRadius.circular(40.0),
         ),
-        backgroundColor: color, // Background color
-        foregroundColor: textColor, // Text color
-        padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 8), // Adjust padding around the label and icon
+        backgroundColor: color,
+        foregroundColor: textColor,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       ),
       icon: Padding(
-        padding: const EdgeInsets.only(
-            right: 10), // Right padding to the icon for better alignment
+        padding: const EdgeInsets.only(right: 10),
         child: icon,
       ),
       label: Text(
@@ -136,7 +246,7 @@ class CustomLoginButton extends StatelessWidget {
         style: GoogleFonts.ubuntu(
           textStyle: TextStyle(
             color: textColor,
-            fontSize: 16, // Set the font size to 16
+            fontSize: 16,
           ),
         ),
       ),
