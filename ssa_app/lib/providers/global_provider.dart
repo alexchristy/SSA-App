@@ -19,7 +19,7 @@ class GlobalProvider {
   UserCredential? userCredential;
 
   Future<void> signInAnonymously() async {
-    userCredential = await auth_utils.signInAnonymously();
+    userCredential = await auth_utils.signInWithAnonymous();
     isAnonymous = true;
   }
 

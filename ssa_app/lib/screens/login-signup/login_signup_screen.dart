@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:ssa_app/constants/app_colors.dart';
 import 'package:ssa_app/providers/global_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ssa_app/utils/authentication_utils.dart';
 
 class LoginSignUpScreen extends StatelessWidget {
   const LoginSignUpScreen({super.key});
@@ -139,7 +140,9 @@ class LoginSignUpScreen extends StatelessWidget {
           text: "Continue with Apple",
           color: Colors.black,
           textColor: Colors.white,
-          onPressed: () {},
+          onPressed: () {
+            signInWithGoogle();
+          },
         ),
         const SizedBox(height: 10),
         CustomLoginButton(
