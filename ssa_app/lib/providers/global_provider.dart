@@ -1,6 +1,4 @@
 import 'package:ssa_app/models/terminal.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:ssa_app/utils/authentication_utils.dart' as auth_utils;
 
 class GlobalProvider {
   bool downloadedTerminals = false;
@@ -15,20 +13,14 @@ class GlobalProvider {
   double halfCardPadding = 0;
 
   // Authentication variables
-  bool isAnonymous = false;
-  UserCredential? userCredential;
+  bool isSignedIn = false;
 
-  Future<void> signInAnonymously() async {
-    userCredential = await auth_utils.signInWithAnonymous();
-    isAnonymous = true;
+  void setSignedIn(bool value) {
+    isSignedIn = value;
   }
 
-  void setAnonymousLoginState(bool value) {
-    isAnonymous = value;
-  }
-
-  bool getAnonymousLoginState() {
-    return isAnonymous;
+  bool getSignedIn() {
+    return isSignedIn;
   }
 
   void setDownloadedTerminals(bool value) {

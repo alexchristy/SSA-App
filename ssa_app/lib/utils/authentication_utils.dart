@@ -6,20 +6,38 @@ Future<UserCredential> signInWithAnonymous() async {
   return await FirebaseAuth.instance.signInAnonymously();
 }
 
-Future<UserCredential> signInWithGoogle() async {
-  // Trigger the authentication flow
-  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+Future<dynamic> signInWithGoogle() async {
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-  // Obtain the auth details from the request
-  final GoogleSignInAuthentication? googleAuth =
-      await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
 
-  // Create a new credential
-  final credential = GoogleAuthProvider.credential(
-    accessToken: googleAuth?.accessToken,
-    idToken: googleAuth?.idToken,
-  );
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
 
-  // Once signed in, return the UserCredential
-  return await FirebaseAuth.instance.signInWithCredential(credential);
+    // Check if the user is already signed in with another account
+    if (FirebaseAuth.instance.currentUser != null) {
+      // Link the new credential with the existing account
+      return await FirebaseAuth.instance.currentUser
+          ?.linkWithCredential(credential);
+    } else {
+      // Sign in with the new credential
+      return await FirebaseAuth.instance.signInWithCredential(credential);
+    }
+  } on Exception catch (e) {
+    // TODO
+    print('exception->$e');
+  }
+}
+
+Future<bool> signOutFromGoogle() async {
+  try {
+    await FirebaseAuth.instance.signOut();
+    return true;
+  } on Exception catch (_) {
+    return false;
+  }
 }

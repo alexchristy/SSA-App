@@ -6,6 +6,7 @@ import 'package:ssa_app/constants/app_colors.dart';
 import 'package:ssa_app/providers/global_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ssa_app/utils/authentication_utils.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class LoginSignUpScreen extends StatelessWidget {
   const LoginSignUpScreen({super.key});
@@ -56,10 +57,8 @@ class LoginSignUpScreen extends StatelessWidget {
   }
 
   Widget _informationTopper(BuildContext context, double edgePadding) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    // Base font size that scales with the screen width
-    double baseFontSize =
-        screenWidth * 0.05; // Adjust the multiplier to scale the size
+    final headerTextGroup = AutoSizeGroup();
+    final bodyTextGroup = AutoSizeGroup();
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -73,58 +72,102 @@ class LoginSignUpScreen extends StatelessWidget {
             color: AppColors.paynesGray,
           ),
           SizedBox(height: 2 * edgePadding),
-          Text(
-            "track updates",
-            style: GoogleFonts.ubuntu(
-              textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize:
-                      baseFontSize * 1.75, // Large text is 1.75x the base size
-                  fontWeight: FontWeight.bold,
-                  overflow: TextOverflow.ellipsis),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: AutoSizeText(
+                  "track updates",
+                  group: headerTextGroup,
+                  maxLines: 1,
+                  minFontSize: 20,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.ubuntu(
+                    textStyle: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 36.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              )
+            ],
           ),
-          Text(
-            "view schedules",
-            style: GoogleFonts.ubuntu(
-              textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: baseFontSize * 1.75, // Consistent large text size
-                  fontWeight: FontWeight.bold,
-                  overflow: TextOverflow.ellipsis),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: AutoSizeText(
+                  "view schedules",
+                  group: headerTextGroup,
+                  maxLines: 1,
+                  minFontSize: 20,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.ubuntu(
+                    textStyle: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 36.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              )
+            ],
           ),
-          Text(
-            "conveniently mobile",
-            style: GoogleFonts.ubuntu(
-              textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: baseFontSize * 1.75, // Consistent large text size
-                  fontWeight: FontWeight.bold,
-                  overflow: TextOverflow.ellipsis),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: AutoSizeText(
+                  "access anywhere",
+                  group: headerTextGroup,
+                  maxLines: 1,
+                  minFontSize: 20,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.ubuntu(
+                    textStyle: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 36.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              )
+            ],
           ),
           SizedBox(height: edgePadding),
-          Text(
-            "with the app that makes Space-A",
-            style: GoogleFonts.ubuntu(
-              textStyle: TextStyle(
-                color: Colors.black,
-                fontSize: baseFontSize, // Small text is the base size
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: AutoSizeText(
+                  "with the app that makes Space-A",
+                  group: bodyTextGroup,
+                  maxLines: 1,
+                  minFontSize: 16,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.ubuntu(
+                    textStyle: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.normal),
+                  ),
+                ),
+              )
+            ],
           ),
           SizedBox(height: edgePadding / 4),
-          Text(
-            "travel a breeze",
-            style: GoogleFonts.ubuntu(
-              textStyle: TextStyle(
-                color: Colors.black,
-                fontSize: baseFontSize, // Consistent small text size
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: AutoSizeText(
+                  "travel a breeze",
+                  group: bodyTextGroup,
+                  maxLines: 1,
+                  minFontSize: 16,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.ubuntu(
+                    textStyle: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.normal),
+                  ),
+                ),
+              )
+            ],
           ),
         ],
       ),
@@ -140,9 +183,7 @@ class LoginSignUpScreen extends StatelessWidget {
           text: "Continue with Apple",
           color: Colors.black,
           textColor: Colors.white,
-          onPressed: () {
-            signInWithGoogle();
-          },
+          onPressed: () {},
         ),
         const SizedBox(height: 10),
         CustomLoginButton(
@@ -150,13 +191,17 @@ class LoginSignUpScreen extends StatelessWidget {
           text: "Continue with Google",
           color: AppColors.white,
           textColor: Colors.black,
-          onPressed: () {},
+          onPressed: () {
+            signInWithGoogle();
+            Provider.of<GlobalProvider>(context, listen: false)
+                .setSignedIn(true);
+          },
         ),
         const SizedBox(height: 10),
         CustomLoginButton(
-          icon: const Icon(Icons.link, color: Colors.white, size: 32),
-          text: "Continue with Link",
-          color: AppColors.paynesGray,
+          icon: const Icon(Icons.facebook, color: Colors.white, size: 32),
+          text: "Continue with Facebook",
+          color: const Color.fromARGB(255, 24, 118, 255),
           textColor: Colors.white,
           onPressed: () {},
         ),
@@ -164,7 +209,7 @@ class LoginSignUpScreen extends StatelessWidget {
         CustomLoginButton(
           icon: const Icon(Icons.email, color: Colors.white, size: 32),
           text: "Continue with Email",
-          color: AppColors.paynesGray,
+          color: AppColors.greenBlue,
           textColor: Colors.white,
           onPressed: () {},
         ),
