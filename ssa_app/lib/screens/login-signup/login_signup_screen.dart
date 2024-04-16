@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +6,8 @@ import 'package:ssa_app/providers/global_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ssa_app/utils/authentication_utils.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:ssa_app/widgets/privacy_terms_disclaimer.dart';
+import 'package:ssa_app/screens/email-login-signup/email_login_signup_screen.dart';
 
 class LoginSignUpScreen extends StatelessWidget {
   const LoginSignUpScreen({super.key});
@@ -30,7 +31,7 @@ class LoginSignUpScreen extends StatelessWidget {
               SizedBox(height: 3 * edgePadding),
               _buildLoginButtons(context),
               SizedBox(height: 2 * edgePadding),
-              buildDisclaimer(context),
+              buildPrivacyTermsDisclaimer(),
             ],
           ),
         ),
@@ -50,7 +51,11 @@ class LoginSignUpScreen extends StatelessWidget {
           scrolledUnderElevation: 0.0,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+            icon: const Icon(
+              Icons.close,
+              color: Colors.black,
+              size: 32,
+            ),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ));
@@ -211,48 +216,15 @@ class LoginSignUpScreen extends StatelessWidget {
           text: "Continue with Email",
           color: AppColors.greenBlue,
           textColor: Colors.white,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const EmailLoginSignUpScreen(),
+              ),
+            );
+          },
         ),
       ],
-    );
-  }
-
-  Widget buildDisclaimer(BuildContext context) {
-    // "Terms of Service" and "Privacy Policy" are links iubenda.com
-    return RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-        style: GoogleFonts.ubuntu(
-          textStyle: const TextStyle(
-            color: Colors.black,
-            fontSize: 14,
-          ),
-        ),
-        children: <TextSpan>[
-          const TextSpan(text: "By continuing, you agree to our "),
-          TextSpan(
-            text: "Terms of Service",
-            style: const TextStyle(
-              decoration: TextDecoration.underline,
-            ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                // Open the "Terms of Service" link
-              },
-          ),
-          const TextSpan(text: " and "),
-          TextSpan(
-            text: "Privacy Policy",
-            style: const TextStyle(
-              decoration: TextDecoration.underline,
-            ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                // Open the "Privacy Policy" link
-              },
-          ),
-        ],
-      ),
     );
   }
 }
