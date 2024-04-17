@@ -263,6 +263,8 @@ class CustomLoginButton extends StatelessWidget {
       ),
       label: Text(
         text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: GoogleFonts.ubuntu(
           textStyle: TextStyle(
             color: textColor,

@@ -1,10 +1,13 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:ssa_app/constants/app_colors.dart';
 import 'package:ssa_app/providers/global_provider.dart';
 import 'package:ssa_app/widgets/privacy_terms_disclaimer.dart';
+import 'package:email_validator/email_validator.dart';
 
 class EmailLoginSignUpScreen extends StatefulWidget {
   const EmailLoginSignUpScreen({super.key});
@@ -14,16 +17,115 @@ class EmailLoginSignUpScreen extends StatefulWidget {
 }
 
 class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool isLogin = true;
   final _formKey = GlobalKey<FormState>();
-  String _email = '';
-  String _password = '';
 
   void _submit() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      // Implement your login logic here
-      print('Email: $_email, Password: $_password');
+    if (kDebugMode) {
+      print("Attempting to submit form");
+    }
+    final form = _formKey.currentState;
+    if (form != null && form.validate()) {
+      form.save();
+      String email = _emailController.text.trim();
+      String password = _passwordController.text;
+
+      if (kDebugMode) {
+        print("Validated: Email: $email, Password: $password");
+      }
+
+      if (EmailValidator.validate(email)) {
+        if (kDebugMode) {
+          print("Email is valid, proceeding with authentication");
+        }
+        _authenticateUser(email, password);
+      } else {
+        if (kDebugMode) {
+          print("Invalid email address entered");
+        }
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Please enter a valid email address.')));
+      }
+    } else {
+      if (kDebugMode) {
+        print("Form is not ready or validation failed");
+      }
+    }
+  }
+
+  void _authenticateUser(String email, String password) async {
+    try {
+      if (isLogin) {
+        // Perform login
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        if (kDebugMode) {
+          print('Logged in successfully: ${userCredential.user}');
+        }
+      } else {
+        // Check if currently signed in user is anonymous
+        if (_auth.currentUser != null && _auth.currentUser!.isAnonymous) {
+          // Create a credential for the new email and password
+          AuthCredential credential =
+              EmailAuthProvider.credential(email: email, password: password);
+
+          // Link the anonymous account to the email account
+          UserCredential userCredential =
+              await _auth.currentUser!.linkWithCredential(credential);
+          if (kDebugMode) {
+            print('Anonymous account linked: ${userCredential.user}');
+          }
+        } else {
+          // No anonymous user to link; proceed with regular registration
+          UserCredential userCredential =
+              await _auth.createUserWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+          if (kDebugMode) {
+            print('Registered successfully: ${userCredential.user}');
+          }
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      _handleFirebaseAuthError(e);
+    }
+  }
+
+  void _handleFirebaseAuthError(FirebaseAuthException e) {
+    String errorMessage = 'An unknown error occurred. Please try again.';
+    if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+      errorMessage = 'Incorrect email or password.';
+    } else if (e.code == 'weak-password') {
+      errorMessage = 'The password provided is too weak.';
+    } else if (e.code == 'email-already-in-use') {
+      errorMessage = 'An account already exists for that email.';
+    } else if (e.code == 'invalid-email') {
+      errorMessage = 'The email address is not valid.';
+    } else if (e.code == 'operation-not-allowed') {
+      errorMessage = 'Email and Password accounts are not enabled.';
+    } else if (e.code == 'too-many-requests') {
+      errorMessage =
+          'Too many requests to log into this account have been made. Please try again later.';
+    }
+
+    // Display the error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage, style: GoogleFonts.ubuntu(fontSize: 16)),
+        backgroundColor: Colors.red, // Optional: to enhance error visibility
+        duration:
+            const Duration(seconds: 3), // Optional: control display duration
+      ),
+    );
+
+    if (kDebugMode) {
+      print('Firebase Auth Error: ${e.code}, Message: $errorMessage');
     }
   }
 
@@ -37,30 +139,33 @@ class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(edgePadding),
-          child: ConstrainedBox(
-            constraints:
-                BoxConstraints(minHeight: MediaQuery.of(context).size.height),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                buildInformationTopper(),
-                SizedBox(height: edgePadding),
-                loginSignUpButtonToggle(edgePadding),
-                SizedBox(height: edgePadding),
-                buildEmailField(edgePadding),
-                SizedBox(height: edgePadding),
-                buildPasswordField(edgePadding),
-                SizedBox(height: 3 * edgePadding),
-                buildSubmitButton(edgePadding),
-                SizedBox(height: 2 * edgePadding),
-                buildActivityModeSwitcherText(),
-                SizedBox(height: 2 * edgePadding),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: buildPrivacyTermsDisclaimer(),
-                ),
-              ],
+          child: Form(
+            key: _formKey,
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  buildInformationTopper(),
+                  SizedBox(height: edgePadding),
+                  loginSignUpButtonToggle(edgePadding),
+                  SizedBox(height: edgePadding),
+                  buildEmailField(edgePadding),
+                  SizedBox(height: edgePadding),
+                  buildPasswordField(edgePadding),
+                  SizedBox(height: 3 * edgePadding),
+                  buildSubmitButton(edgePadding),
+                  SizedBox(height: 2 * edgePadding),
+                  buildActivityModeSwitcherText(),
+                  SizedBox(height: 2 * edgePadding),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: buildPrivacyTermsDisclaimer(),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -220,7 +325,7 @@ class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
         SizedBox(
             height: edgePadding / 2), // Spacing between label and input field
         TextFormField(
-          key: const ValueKey('email'),
+          controller: _emailController,
           style: GoogleFonts.ubuntu(
             textStyle: const TextStyle(color: Colors.black, fontSize: 18),
           ),
@@ -240,13 +345,12 @@ class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
             ),
           ),
           validator: (value) {
-            if (value == null || value.isEmpty || !value.contains('@')) {
+            if (value == null || value.isEmpty) {
+              return 'Email cannot be empty';
+            } else if (!EmailValidator.validate(value)) {
               return 'Please enter a valid email address.';
             }
             return null;
-          },
-          onSaved: (value) {
-            _email = value!;
           },
         ),
       ],
@@ -264,8 +368,8 @@ class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
         SizedBox(
             height: edgePadding / 2), // Spacing between label and input field
         TextFormField(
+          controller: _passwordController,
           style: const TextStyle(color: Colors.black, fontSize: 18),
-          key: const ValueKey('password'),
           obscureText: true,
           decoration: InputDecoration(
             hintText: 'Enter your password...',
@@ -282,13 +386,12 @@ class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
             ),
           ),
           validator: (value) {
-            if (value == null || value.isEmpty || value.length < 7) {
+            if (value == null || value.isEmpty) {
+              return 'Password cannot be empty';
+            } else if (value.length < 7) {
               return 'Password must be at least 7 characters long.';
             }
             return null;
-          },
-          onSaved: (value) {
-            _password = value!;
           },
         ),
       ],
