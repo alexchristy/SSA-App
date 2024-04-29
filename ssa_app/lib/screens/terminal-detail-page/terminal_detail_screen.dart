@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:ssa_app/models/terminal.dart';
 import 'package:ssa_app/utils/pdf_utils.dart';
 import 'package:path/path.dart' as path;
 
 class TerminalDetailPage extends StatelessWidget {
-  final Map<String, dynamic> terminalData;
+  final Terminal terminal;
   final PDFService _pdfService = PDFService();
   static const Key testKey = Key('TerminalDetailPage');
 
-  TerminalDetailPage({super.key, required this.terminalData});
+  TerminalDetailPage({super.key, required this.terminal});
 
   @override
   Widget build(BuildContext context) {
-    // All your existing method implementations (requestStoragePermission, downloadPdf, fetchPdfDetails, openPdf)
-
-    // Existing Scaffold and body setup...
     return Scaffold(
       appBar: AppBar(
-        title: Text(terminalData['name']),
+        title: Text(terminal.name),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -43,7 +41,7 @@ class TerminalDetailPage extends StatelessWidget {
     };
 
     pdfLabels.forEach((hashKey, label) {
-      String? hash = terminalData[hashKey];
+      String? hash = terminal.toMap()[hashKey];
       if (hash != null && hash.isNotEmpty) {
         buttons.add(ElevatedButton(
           child: Text(label),

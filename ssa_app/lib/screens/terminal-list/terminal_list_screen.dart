@@ -325,7 +325,7 @@ class TerminalListItemState extends State<TerminalListItem> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) =>
-                  TerminalDetailPage(terminalData: widget.terminal.toMap()),
+                  TerminalDetailPage(terminal: widget.terminal),
             ),
           );
         },
