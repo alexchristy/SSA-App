@@ -118,7 +118,8 @@ class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(errorMessage, style: GoogleFonts.ubuntu(fontSize: 16)),
-        backgroundColor: Colors.red, // Optional: to enhance error visibility
+        backgroundColor:
+            Colors.red.shade700, // Optional: to enhance error visibility
         duration:
             const Duration(seconds: 3), // Optional: control display duration
       ),
@@ -136,39 +137,45 @@ class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
     return Scaffold(
       appBar: buildAppBar(context, edgePadding: edgePadding),
       backgroundColor: AppColors.ghostWhite,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(edgePadding),
-          child: Form(
-            key: _formKey,
+      body: LayoutBuilder(
+        // Using LayoutBuilder to provide constraints based on actual runtime limits
+        builder: (BuildContext context, BoxConstraints viewportConstraints) {
+          return SingleChildScrollView(
             child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(minHeight: MediaQuery.of(context).size.height),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  buildInformationTopper(),
-                  SizedBox(height: edgePadding),
-                  loginSignUpButtonToggle(edgePadding),
-                  SizedBox(height: edgePadding),
-                  buildEmailField(edgePadding),
-                  SizedBox(height: edgePadding),
-                  buildPasswordField(edgePadding),
-                  SizedBox(height: 3 * edgePadding),
-                  buildSubmitButton(edgePadding),
-                  SizedBox(height: 2 * edgePadding),
-                  buildActivityModeSwitcherText(),
-                  SizedBox(height: 2 * edgePadding),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: buildPrivacyTermsDisclaimer(),
+              constraints: BoxConstraints(
+                minHeight: viewportConstraints.maxHeight,
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(edgePadding),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      buildInformationTopper(),
+                      SizedBox(height: edgePadding),
+                      loginSignUpButtonToggle(edgePadding),
+                      SizedBox(height: edgePadding),
+                      buildEmailField(edgePadding),
+                      SizedBox(height: edgePadding),
+                      buildPasswordField(edgePadding),
+                      SizedBox(height: 3 * edgePadding),
+                      buildSubmitButton(edgePadding),
+                      SizedBox(height: 2 * edgePadding),
+                      buildActivityModeSwitcherText(),
+                      SizedBox(height: 3 * edgePadding),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: buildPrivacyTermsDisclaimer(),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -343,6 +350,17 @@ class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
               borderSide: const BorderSide(color: Colors.lightBlue, width: 2.0),
               borderRadius: BorderRadius.circular(4.0),
             ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red.shade700, width: 1.0),
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red.shade700, width: 2.0),
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            errorStyle: GoogleFonts.ubuntu(
+              textStyle: TextStyle(color: Colors.red.shade700, fontSize: 16),
+            ),
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
@@ -384,12 +402,23 @@ class _EmailLoginSignUpScreenState extends State<EmailLoginSignUpScreen> {
               borderSide: const BorderSide(color: Colors.lightBlue, width: 2.0),
               borderRadius: BorderRadius.circular(4.0),
             ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red.shade700, width: 1.0),
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red.shade700, width: 2.0),
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            errorStyle: GoogleFonts.ubuntu(
+              textStyle: TextStyle(color: Colors.red.shade700, fontSize: 16),
+            ),
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Password cannot be empty';
             } else if (value.length < 7) {
-              return 'Password must be at least 7 characters long.';
+              return 'Must be at least 7 characters';
             }
             return null;
           },

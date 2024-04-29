@@ -41,8 +41,8 @@ void main() {
       expect(find.text('https://example.com/terminal600'), findsOneWidget);
 
       await tester.pumpWidget(MediaQuery(
-          data: const MediaQueryData(devicePixelRatio: 4.0),
-          child: testWidget(pixelRatio: 4.0)));
+          data: const MediaQueryData(devicePixelRatio: 10000.0),
+          child: testWidget(pixelRatio: 10000.0)));
       expect(find.text('https://example.com/terminal750'), findsOneWidget,
           reason:
               'Since there is no variant for 800px wide, it should return 750px wide variant should be used by default.');
@@ -85,8 +85,8 @@ void main() {
       expect(find.text('https://example.com/terminal600'), findsOneWidget);
 
       await tester.pumpWidget(MediaQuery(
-          data: const MediaQueryData(devicePixelRatio: 4.0),
-          child: testWidget(pixelRatio: 4.0)));
+          data: const MediaQueryData(devicePixelRatio: 4000.0),
+          child: testWidget(pixelRatio: 4000.0)));
       expect(find.text('https://example.com/terminal750'), findsOneWidget,
           reason:
               'Since there is no variant for 800px wide, it should return 750px wide variant should be used by default.');

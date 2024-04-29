@@ -28,9 +28,9 @@ class LoginSignUpScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               _informationTopper(context, edgePadding),
-              SizedBox(height: 3 * edgePadding),
-              _buildLoginButtons(context),
               SizedBox(height: 2 * edgePadding),
+              _buildLoginButtons(context),
+              SizedBox(height: 3 * edgePadding),
               buildPrivacyTermsDisclaimer(),
             ],
           ),
