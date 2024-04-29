@@ -401,8 +401,8 @@ class TerminalSearchScreenState extends State<TerminalSearchScreen>
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => TerminalDetailPage(
-                  terminalData: terminal!
-                      .toMap()), // Will not be null since map is built in previous screen
+                terminal: terminal!,
+              ), // Will not be null since map is built in previous screen
             ),
           );
         },

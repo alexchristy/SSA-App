@@ -8,6 +8,7 @@ import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart
 import 'package:ssa_app/screens/terminal-list/list_filters_widget.dart';
 import 'package:ssa_app/screens/terminal-list/terminal_list_screen.dart';
 import 'package:ssa_app/screens/terminal-search/terminal_search_screen.dart';
+import 'package:ssa_app/services/custom_icons/airport.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
 import 'package:ssa_app/main.dart' as app;
 
@@ -24,7 +25,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to Terminal List screen
-      final terminalListFinder = find.byType(RawMaterialButton).at(0);
+      final terminalListFinder = find.byIcon(Airport.airport_icon);
       await tester.tap(terminalListFinder);
       await tester.pumpAndSettle();
 

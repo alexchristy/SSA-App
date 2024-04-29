@@ -15,7 +15,27 @@ class ImageUtil {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final adjustedWidth = requiredWidth * pixelRatio;
     final adjustedHeight = requiredHeight * pixelRatio;
-    const variants = [150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 750];
+    const variants = [
+      150,
+      200,
+      250,
+      300,
+      350,
+      400,
+      450,
+      500,
+      600,
+      700,
+      750,
+      900,
+      1000,
+      1100,
+      1250,
+      1500,
+      1750,
+      2000
+    ];
+
     int requiredSize = adjustedWidth >= adjustedHeight
         ? adjustedWidth.ceil()
         : adjustedHeight.ceil();

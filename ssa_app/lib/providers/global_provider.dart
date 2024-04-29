@@ -12,6 +12,17 @@ class GlobalProvider {
   double cardPadding = 0;
   double halfCardPadding = 0;
 
+  // Authentication variables
+  bool isSignedIn = false;
+
+  void setSignedIn(bool value) {
+    isSignedIn = value;
+  }
+
+  bool getSignedIn() {
+    return isSignedIn;
+  }
+
   void setDownloadedTerminals(bool value) {
     downloadedTerminals = value;
   }

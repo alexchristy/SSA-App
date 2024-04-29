@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ssa_app/models/filter.dart'; // Ensure your Filter model is correctly defined
 
 class TerminalFilterWidget extends StatefulWidget {
@@ -54,8 +55,8 @@ class _TerminalFilterWidgetState extends State<TerminalFilterWidget> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
-                  child:
-                      Text(filter.name, style: const TextStyle(fontSize: 16))),
+                  child: Text(filter.name,
+                      style: GoogleFonts.ubuntu(fontSize: 16))),
             ),
           );
         },

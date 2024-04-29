@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ssa_app/screens/terminal-detail-page/terminal_detail_screen.dart';
 import 'package:ssa_app/utils/image_utils.dart';
 import 'package:ssa_app/utils/terminal_utils.dart';
@@ -115,13 +116,6 @@ class _TerminalsListState extends State<TerminalsList> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double shortestSide = MediaQuery.of(context).size.shortestSide;
-
-    // Set the dynamic sizes in the global provider
-    Provider.of<GlobalProvider>(context, listen: false)
-        .setDynamicSizes(screenWidth, shortestSide);
-
     final double tileWidth = Provider.of<GlobalProvider>(context).cardWidth;
     final double tileHeight = Provider.of<GlobalProvider>(context).cardHeight;
     final double edgePadding = Provider.of<GlobalProvider>(context).cardPadding;
@@ -203,7 +197,7 @@ class _TerminalsListState extends State<TerminalsList> {
         preferredSize: Size.fromHeight(baseAppBarHeight),
         child: AppBar(
           backgroundColor: AppColors.ghostWhite,
-          title: const Text("Terminals", style: TextStyle(fontSize: 24.0)),
+          title: Text("Terminals", style: GoogleFonts.ubuntu(fontSize: 24.0)),
           leading: Padding(
             // Apply left padding to the leading icon
             padding: const EdgeInsets.only(left: 8.0),
@@ -331,7 +325,7 @@ class TerminalListItemState extends State<TerminalListItem> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) =>
-                  TerminalDetailPage(terminalData: widget.terminal.toMap()),
+                  TerminalDetailPage(terminal: widget.terminal),
             ),
           );
         },
@@ -415,8 +409,8 @@ class TerminalListItemState extends State<TerminalListItem> {
           children: [
             Text(
               widget.terminal.getName(),
-              style:
-                  const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              style: GoogleFonts.ubuntu(
+                  fontSize: 18.0, fontWeight: FontWeight.bold),
               maxLines: 2, // Limit the text to 2 lines.
               overflow:
                   TextOverflow.ellipsis, // Show ellipsis if the text overflows.

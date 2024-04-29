@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "133332829439-n20spjo9bcl32f55umfm8r90tgrj27l4.apps.googleusercontent.com",
+          "client_id": "133332829439-ats0j9kom99irjc0c43bm9b83mr5mu6j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ssa_app",
+            "certificate_hash": "5eb9d4edd4b987f66edd14fb0f04d8176497284f"
+          }
+        },
+        {
+          "client_id": "133332829439-sjopm6ircv48k6vinvd0na9447vdopb2.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,8 +35,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "133332829439-n20spjo9bcl32f55umfm8r90tgrj27l4.apps.googleusercontent.com",
+              "client_id": "133332829439-d63f7d11o8634jfvcf0r5drbgbfdjv4b.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "133332829439-cahb7dcofsa9vdnmq6evfacl6neaeejs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ssaApp.RunnerTests"
+              }
             }
           ]
         }
